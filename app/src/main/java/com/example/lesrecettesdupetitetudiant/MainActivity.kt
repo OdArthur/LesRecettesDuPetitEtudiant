@@ -1,7 +1,8 @@
 package com.example.lesrecettesdupetitetudiant
 
-import android.database.sqlite.SQLiteOpenHelper
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -12,6 +13,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityMainBinding
 
 
@@ -31,10 +33,31 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        binding.appBarMain.fab.setOnClickListener {
+            view -> if(binding.appBarMain.toolbar.title.toString() == "Recettes")
+            {
+                /*Snackbar.make(view, "Ajouter une nouvelle recette", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()*/
+                intent = Intent(this, AddRecipe::class.java)
+                startActivity(intent)
+            }
+            else if(binding.appBarMain.toolbar.title.toString() == "Panier")
+            {
+                Snackbar.make(view, "Ajouter un ingrédient au panier", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+            }
+            else if( binding.appBarMain.toolbar.title.toString() == "Réfrigérateur" )
+            {
+                Snackbar.make(view, "Ajouter un ingrédient au réfigérateur", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+            }
+            else
+            {
+                Log.d("LE DEBUG VRAIMENT UTILE : ", binding.appBarMain.toolbar.title.toString())
+            }
+
         }
+
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
