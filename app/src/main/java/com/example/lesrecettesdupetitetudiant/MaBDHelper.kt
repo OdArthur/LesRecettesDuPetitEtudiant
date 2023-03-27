@@ -1,13 +1,17 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
+import android.widget.Toast
 
-class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VERSION_BD) {
+class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null, VERSION_BD) {
+    private val context = MyContext
 
     companion object {
-        private const val NOM_BD = "MaBD"
+        private const val NOM_BD = "DB_LRDPE.db"
         private const val VERSION_BD = 1
 
         private const val TBL_FRIGIDAIRE = "tbl_frigidaire"
@@ -16,15 +20,10 @@ class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VER
         private const val ID_TABLE_FRIGIDAIRE = "id_table_frigidaire"
         private const val FK_CONSTRAINT_INGREDIENT_ID_FRIGIDAIRE = "fk_contraint_ingredient_id_frigidaire"
 
-
-
-
         private const val TBL_RECETTE = "tbl_recette"
         private const val ID_TABLE_RECETTE = "id_table_recette"
         private const val TITLE_RECETTE = "title_recette"
         private const val DESC_RECETTE = "desc_recette"
-
-
 
         private const val TBL_PANIER = "tbl_panier"
         private const val INGREDIENT_ID_PANIER = "ingredient_id_panier"
@@ -36,7 +35,6 @@ class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VER
         private const val NAME_INGREDIENT= "name_ingredient"
         private const val UNIT_ID_INGREDIENT="unit_id_ingredient"
         private const val ID_TABLE_INGREDIENT="id_table_ingredient"
-
 
         private const val TBL_UNIT = "tbl_unit"
         private const val ID_TABLE_UNIT = "id_table_unit"
@@ -55,54 +53,34 @@ class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VER
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val createTblFrigidaire = ("CREATE TABLE " + TBL_FRIGIDAIRE + " (" + ID_TABLE_FRIGIDAIRE + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + QUANT_FRIGIDAIRE + " INTEGER " + INGREDIENT_ID_FRIGIDAIRE + " INTEGER " + ")")
-        db.execSQL(createTblFrigidaire)
-
-        val createTblPanier = ("CREATE TABLE " + TBL_PANIER + " (" + ID_TABLE_PANIER + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + QUANT_PANIER + " INTEGER " + INGREDIENT_ID_PANIER + " INTEGER " + ")")
-        db.execSQL(createTblPanier)
-
-        val createTblIngredient = ("CREATE TABLE " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_INGREDIENT + " VARCHAR(50) UNIQUE, "
-                + UNIT_ID_INGREDIENT + " INTEGER" +")" )
-        db.execSQL(createTblIngredient)
-
         val createTblUnit=("CREATE TABLE " + TBL_UNIT + " (" + ID_TABLE_UNIT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_UNIT + " VARCHAR(50) UNIQUE "
-                +")")
+                +");")
         db.execSQL(createTblUnit)
 
+
+        val createTblIngredient = ("CREATE TABLE " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_INGREDIENT + " VARCHAR(50) UNIQUE, "
+                + UNIT_ID_INGREDIENT + " INTEGER, FOREIGN KEY (" + UNIT_ID_INGREDIENT + ") REFERENCES " + TBL_UNIT + " (" + ID_TABLE_UNIT + ") );" )
+        db.execSQL(createTblIngredient)
+
+
         val createTblRecette=("CREATE TABLE " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TITLE_RECETTE + " VARCHAR(130), "
-               + DESC_RECETTE + "TEXT" +")")
+                + DESC_RECETTE + ");")
         db.execSQL(createTblRecette)
 
+
+        val createTblFrigidaire = ("CREATE TABLE " + TBL_FRIGIDAIRE + " (" + ID_TABLE_FRIGIDAIRE + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + QUANT_FRIGIDAIRE + " INTEGER, " + INGREDIENT_ID_FRIGIDAIRE + " INTEGER, FOREIGN KEY (" + INGREDIENT_ID_FRIGIDAIRE + ") REFERENCES " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + ") );")
+        db.execSQL(createTblFrigidaire)
+
+
+        val createTblPanier = ("CREATE TABLE " + TBL_PANIER + " (" + ID_TABLE_PANIER + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + QUANT_PANIER + " INTEGER, " + INGREDIENT_ID_PANIER + " INTEGER, FOREIGN KEY (" + INGREDIENT_ID_PANIER + ") REFERENCES " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + ") );")
+        db.execSQL(createTblPanier)
+
+
         val createTblIngredientrequis = ("CREATE TABLE " + TBL_INGREDIENT_REQUIS + " (" + ID_TABLE_INGREDIENT_REQUIS + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + RECETTE_ID_INGREDIENT_REQUIS + " INTEGER, " + INGREDIENT_ID_INGREDIENT_REQUIS + " INTEGER, " + QUANT_INGREDIENT_REQUIS + " INTEGER" +")")
+                + RECETTE_ID_INGREDIENT_REQUIS + " INTEGER, " + INGREDIENT_ID_INGREDIENT_REQUIS + " INTEGER, " + QUANT_INGREDIENT_REQUIS + " INTEGER, FOREIGN KEY (" + INGREDIENT_ID_INGREDIENT_REQUIS + ") REFERENCES " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + "), FOREIGN KEY (" + RECETTE_ID_INGREDIENT_REQUIS + ") REFERENCES " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + ") );")
         db.execSQL(createTblIngredientrequis)
-
-
-
-        val addForeignKeyConstraintFrigidaire = ("ALTER TABLE " + TBL_FRIGIDAIRE + " ADD CONSTRAINT " +
-                FK_CONSTRAINT_INGREDIENT_ID_FRIGIDAIRE + " FOREIGN KEY (" + INGREDIENT_ID_FRIGIDAIRE + ") REFERENCES " + TBL_INGREDIENT + "(" + ID_TABLE_INGREDIENT + ")")
-
-        db.execSQL(addForeignKeyConstraintFrigidaire )
-
-        val addForeignKeyConstraintPanier = ("ALTER TABLE " + TBL_PANIER + " ADD CONSTRAINT " +
-                FK_CONSTRAINT_INGREDIENT_ID_PANIER + " FOREIGN KEY (" + INGREDIENT_ID_PANIER + ") REFERENCES " + TBL_INGREDIENT  + "(" + ID_TABLE_INGREDIENT + ")")
-
-        db.execSQL(addForeignKeyConstraintPanier )
-
-
-        val addForeignKeyConstraintIngredientRequis = ("ALTER TABLE " + TBL_INGREDIENT_REQUIS + " ADD CONSTRAINT " +
-                FK_CONSTRAINT_RECETTE_ID_INGREDIENT_REQUIS + " FOREIGN KEY (" + RECETTE_ID_INGREDIENT_REQUIS + ") REFERENCES " + TBL_RECETTE + "(" + ID_TABLE_RECETTE + ")" +
-                 " ADD CONSTRAINT " +
-                FK_CONSTRAINT_INGREDIENT_ID_INGREDIENT_REQUIS + " FOREIGN KEY (" + INGREDIENT_ID_INGREDIENT_REQUIS + ") REFERENCES " + TBL_INGREDIENT + "(" + ID_TABLE_INGREDIENT + ")")
-
-        db.execSQL(addForeignKeyConstraintIngredientRequis)
-
-        val addForeignKeyConstraintIngredient = ("ALTER TABLE " + TBL_INGREDIENT + " ADD CONSTRAINT " +
-                FK_CONSTRAINT_INGREDIENT_UNIT_ID_INGREDIENT + " FOREIGN KEY (" + UNIT_ID_INGREDIENT + ") REFERENCES " + TBL_UNIT  + "(" + ID_TABLE_UNIT + ")")
-
-        db.execSQL(addForeignKeyConstraintIngredient)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
