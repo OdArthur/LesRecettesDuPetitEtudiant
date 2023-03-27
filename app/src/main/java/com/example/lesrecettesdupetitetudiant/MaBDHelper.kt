@@ -87,6 +87,24 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         db.execSQL("DROP TABLE IF EXISTS MaTable")
         onCreate(db)
     }
+
+    fun addRecipe(title:String, Description:String)
+    {
+        val db:SQLiteDatabase = this.writableDatabase
+        val cv:ContentValues = ContentValues()
+
+        cv.put(TITLE_RECETTE, title)
+        cv.put(DESC_RECETTE, Description)
+        val result = db.insert(TBL_RECETTE, null, cv)
+        if (result.equals(-1))
+        {
+            Toast.makeText(context, "adding a recipe have failed", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 
 
