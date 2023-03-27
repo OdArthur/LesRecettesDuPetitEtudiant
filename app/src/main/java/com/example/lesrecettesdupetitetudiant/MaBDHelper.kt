@@ -55,28 +55,28 @@ class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VER
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        val createTblFrigidaire = ("CREATE TABLE" + TBL_FRIGIDAIRE + "(" + ID_TABLE_FRIGIDAIRE + "INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + QUANT_FRIGIDAIRE + "INTEGER" + INGREDIENT_ID_FRIGIDAIRE + "INTEGER" + ")")
+        val createTblFrigidaire = ("CREATE TABLE " + TBL_FRIGIDAIRE + " (" + ID_TABLE_FRIGIDAIRE + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + QUANT_FRIGIDAIRE + " INTEGER " + INGREDIENT_ID_FRIGIDAIRE + " INTEGER " + ")")
         db.execSQL(createTblFrigidaire)
 
-        val createTblPanier = ("CREATE TABLE" + TBL_PANIER + "(" + ID_TABLE_PANIER + "INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + QUANT_PANIER + "INTEGER" + INGREDIENT_ID_PANIER + "INTEGER" + ")")
+        val createTblPanier = ("CREATE TABLE " + TBL_PANIER + " (" + ID_TABLE_PANIER + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + QUANT_PANIER + " INTEGER " + INGREDIENT_ID_PANIER + " INTEGER " + ")")
         db.execSQL(createTblPanier)
 
-        val createTblIngredient = ("CREATE TABLE" + TBL_INGREDIENT + "(" + ID_TABLE_INGREDIENT + "INTEGER PRIMARY KEY AUTO_INCREMENT," + NAME_INGREDIENT + "VARCHAR(50) UNIQUE,"
-                + UNIT_ID_INGREDIENT + "INTEGER" +")" )
+        val createTblIngredient = ("CREATE TABLE " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_INGREDIENT + " VARCHAR(50) UNIQUE, "
+                + UNIT_ID_INGREDIENT + " INTEGER" +")" )
         db.execSQL(createTblIngredient)
 
-        val createTblUnit=("CREATE TABLE" + TBL_UNIT + "(" + ID_TABLE_UNIT + "INTEGER PRIMARY KEY AUTO_INCREMENT," + NAME_UNIT + "VARCHAR(50) UNIQUE"
+        val createTblUnit=("CREATE TABLE " + TBL_UNIT + " (" + ID_TABLE_UNIT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_UNIT + " VARCHAR(50) UNIQUE "
                 +")")
         db.execSQL(createTblUnit)
 
-        val createTblRecette=("CREATE TABLE" + TBL_RECETTE + "(" + ID_TABLE_RECETTE + "INTEGER PRIMARY KEY AUTO_INCREMENT," + TITLE_RECETTE + "VARCHAR(130),"
+        val createTblRecette=("CREATE TABLE " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TITLE_RECETTE + " VARCHAR(130), "
                + DESC_RECETTE + "TEXT" +")")
         db.execSQL(createTblRecette)
 
-        val createTblIngredientrequis = ("CREATE TABLE" + TBL_INGREDIENT_REQUIS + "(" + ID_TABLE_INGREDIENT_REQUIS + "INTEGER PRIMARY KEY AUTO_INCREMENT,"
-                + RECETTE_ID_INGREDIENT_REQUIS + "INTEGER," + INGREDIENT_ID_INGREDIENT_REQUIS + "INTEGER," + QUANT_INGREDIENT_REQUIS + "INTEGER" +")")
+        val createTblIngredientrequis = ("CREATE TABLE " + TBL_INGREDIENT_REQUIS + " (" + ID_TABLE_INGREDIENT_REQUIS + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + RECETTE_ID_INGREDIENT_REQUIS + " INTEGER, " + INGREDIENT_ID_INGREDIENT_REQUIS + " INTEGER, " + QUANT_INGREDIENT_REQUIS + " INTEGER" +")")
         db.execSQL(createTblIngredientrequis)
 
 
@@ -103,16 +103,6 @@ class MaBDHelper(context: Context) : SQLiteOpenHelper(context, NOM_BD, null, VER
                 FK_CONSTRAINT_INGREDIENT_UNIT_ID_INGREDIENT + " FOREIGN KEY (" + UNIT_ID_INGREDIENT + ") REFERENCES " + TBL_UNIT  + "(" + ID_TABLE_UNIT + ")")
 
         db.execSQL(addForeignKeyConstraintIngredient)
-
-
-
-
-
-
-
-
-
-
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
