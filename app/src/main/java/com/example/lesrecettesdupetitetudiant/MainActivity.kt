@@ -43,11 +43,11 @@ class MainActivity : AppCompatActivity() {
             }
             else if(binding.appBarMain.toolbar.title.toString() == "Panier")
             {
-                Snackbar.make(view, "Ajouter un ingrédient au panier", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                /*Snackbar.make(view, "Ajouter un ingrédient au panier", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()*/
 
-                /*intent = Intent(this, AddToBasket::class.java)
-                startActivity(intent)*/
+                intent = Intent(this, AddToBasket::class.java)
+                startActivity(intent)
             }
             else if( binding.appBarMain.toolbar.title.toString() == "Réfrigérateur" )
             {

@@ -27,6 +27,14 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".AddToBasket"
+            android:exported="false"
+            android:label="Ajouter au panier">
+        <meta-data
+            android:name="android.app.lib_name"
+            android:value="" />
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
