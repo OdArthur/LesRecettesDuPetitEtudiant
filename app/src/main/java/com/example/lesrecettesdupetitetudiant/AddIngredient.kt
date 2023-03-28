@@ -14,10 +14,19 @@ class AddIngredient : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val ingredientName = intent.getStringExtra("ingredient_name")
+
         binding = ActivityAddIngredientBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         val ingredientNameEditText = findViewById<EditText>(R.id.ingredientName)
+        if (ingredientName != null) {
+            if(ingredientName.isNotEmpty())
+            {
+                ingredientNameEditText.setText(ingredientName)
+            }
+        }
 
         val createIngredientButton = findViewById<Button>(R.id.createIngredient)
         createIngredientButton.setOnClickListener {
