@@ -105,6 +105,25 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
         }
     }
+
+    fun addToBasket(name:String, unit:String, quantity:Int)
+    {
+        val db:SQLiteDatabase = this.writableDatabase
+        val cv:ContentValues = ContentValues()
+
+        cv.put(NAME_INGREDIENT, name)
+        cv.put(QUANT_INGREDIENT_REQUIS, quantity)
+        cv.put(UNIT_ID_INGREDIENT, unit)
+        val result = db.insert(TBL_PANIER, null, cv)
+        if (result.equals(-1))
+        {
+            Toast.makeText(context, "adding a recipe have failed", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 
 

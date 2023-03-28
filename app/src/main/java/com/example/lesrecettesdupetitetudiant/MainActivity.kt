@@ -45,6 +45,9 @@ class MainActivity : AppCompatActivity() {
             {
                 Snackbar.make(view, "Ajouter un ingrédient au panier", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show()
+
+                /*intent = Intent(this, AddToBasket::class.java)
+                startActivity(intent)*/
             }
             else if( binding.appBarMain.toolbar.title.toString() == "Réfrigérateur" )
             {
