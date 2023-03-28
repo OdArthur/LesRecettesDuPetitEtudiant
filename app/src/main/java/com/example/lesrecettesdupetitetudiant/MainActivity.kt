@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity() {
             }
             else if( binding.appBarMain.toolbar.title.toString() == "Réfrigérateur" )
             {
-                Snackbar.make(view, "Ajouter un ingrédient au réfigérateur", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                intent = Intent(this, AddIngredientsToFridge::class.java)
+                startActivity(intent)
             }
             else
             {

@@ -1,10 +1,13 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.R
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import android.widget.Toast
 
 class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null, VERSION_BD) {
@@ -123,6 +126,52 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         {
             Toast.makeText(context, "adding to basket have succeded", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun displayFridge(listView: ListView) {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TBL_FRIGIDAIRE", null)
+        val listItems = ArrayList<String>()
+
+        if (cursor.count == 0) {
+            listItems.add("Le frigidaire est vide")
+        } else {
+            if (cursor.moveToFirst()) {
+                do {
+                    val ingredientId = cursor.getLong(cursor.getColumnIndexOrThrow(INGREDIENT_ID_FRIGIDAIRE))
+                    val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE))
+                    listItems.add("$quantite - $ingredientId")
+                } while (cursor.moveToNext())
+            }
+        }
+
+        val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
+        listView.adapter = adapter
+    }
+
+    fun searchAndDisplay(listView: ListView, searchQuery: String) {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
+        val listItems = ArrayList<String>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val nameIngredient = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
+                listItems.add(nameIngredient)
+            } while (cursor.moveToNext())
+        } else {
+            listItems.add("Aucun résultat trouvé.")
+        }
+
+        val adapter = ArrayAdapter(this.context, android.R.layout.simple_list_item_1, listItems)
+        listView.adapter = adapter
+    }
+
+    fun addIngredient(name: String) {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(NAME_INGREDIENT, name)
+        db.insert(TBL_INGREDIENT, null, contentValues)
     }
 }
 
