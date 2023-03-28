@@ -117,11 +117,11 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val result = db.insert(TBL_PANIER, null, cv)
         if (result.equals(-1))
         {
-            Toast.makeText(context, "adding a recipe have failed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "adding to basket have failed", Toast.LENGTH_SHORT).show()
         }
         else
         {
-            Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "adding to basket have succeded", Toast.LENGTH_SHORT).show()
         }
     }
 }
