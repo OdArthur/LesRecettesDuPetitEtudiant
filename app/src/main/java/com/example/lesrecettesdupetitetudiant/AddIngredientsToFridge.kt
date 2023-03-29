@@ -1,17 +1,24 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
+import androidx.activity.result.contract.ActivityResultContracts
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddIngredientsToFridgeBinding
 
 class AddIngredientsToFridge : AppCompatActivity() {
     private lateinit var binding: ActivityAddIngredientsToFridgeBinding
+
+    companion object {
+        const val REQUEST_CODE_ADD_INGREDIENT = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +60,24 @@ class AddIngredientsToFridge : AppCompatActivity() {
             finish()
         }
 
+        val addIngredientActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val name = data?.getStringExtra("name_ingredient")
+                if (name != null) {
+                    val db = MaBDHelper(applicationContext)
+                    val listView = findViewById<ListView>(R.id.listIngredients)
+                    db.searchAndDisplay(listView, name)
+                }
+            }
+        }
+
         val createButton = findViewById<Button>(R.id.createIngredients)
         createButton.setOnClickListener {
             val intent = Intent(this, AddIngredient::class.java)
             val ingredientName = searchEditText.text.toString()
             intent.putExtra("ingredient_name", ingredientName)
-            startActivity(intent)
+            addIngredientActivityResult.launch(intent)
         }
     }
 }

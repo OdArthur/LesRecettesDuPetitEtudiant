@@ -39,6 +39,13 @@ class HomeFragment : Fragment() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        var db:MaBDHelper = MaBDHelper(requireContext())
+        val listFridgeIngredients = view?.findViewById<ListView>(R.id.listFridgeIngredients)
+        listFridgeIngredients?.let { db.displayFridge(it) }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

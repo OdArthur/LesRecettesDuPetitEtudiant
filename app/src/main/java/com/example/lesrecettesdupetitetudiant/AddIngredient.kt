@@ -1,6 +1,8 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -34,6 +36,9 @@ class AddIngredient : AppCompatActivity() {
             if (name.isNotBlank()) {
                 val db = MaBDHelper(this)
                 db.addIngredient(name)
+                val returnIntent = Intent()
+                returnIntent.putExtra("name_ingredient", name)
+                setResult(Activity.RESULT_OK, returnIntent)
                 finish()
             }
         }
