@@ -129,8 +129,14 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     }
 
     fun displayFridge(listView: ListView) {
+        Log.d("TAG" , "display fridge function called")
         val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TBL_FRIGIDAIRE", null)
+        val query = "SELECT TBL_INGREDIENT.NAME_INGREDIENT, TBL_FRIGIDAIRE.QUANT_FRIGIDAIRE " +
+                "FROM TBL_FRIGIDAIRE " +
+                "INNER JOIN TBL_INGREDIENT " +
+                "ON TBL_FRIGIDAIRE.INGREDIENT_ID_FRIGIDAIRE = TBL_INGREDIENT.ID_TABLE_INGREDIENT"
+
+        val cursor = db.rawQuery(query, null)
         val listItems = ArrayList<String>()
 
         if (cursor.count == 0) {
@@ -138,9 +144,9 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         } else {
             if (cursor.moveToFirst()) {
                 do {
-                    val ingredientId = cursor.getLong(cursor.getColumnIndexOrThrow(INGREDIENT_ID_FRIGIDAIRE))
-                    val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE))
-                    listItems.add("$quantite - $ingredientId")
+                    val ingredientName = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
+                    val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)).toInt()
+                    listItems.add(" quantité : $quantite - Ingredient : $ingredientName")
                 } while (cursor.moveToNext())
             }
         }
@@ -148,6 +154,9 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
         listView.adapter = adapter
     }
+
+
+
 
     fun searchAndDisplay(listView: ListView, searchQuery: String) {
         val db = this.readableDatabase
@@ -173,6 +182,32 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         contentValues.put(NAME_INGREDIENT, name)
         db.insert(TBL_INGREDIENT, null, contentValues)
     }
+    fun addIngredientsToFridge(ingredients: List<String>) {
+        val db = writableDatabase
+        for (ingredient in ingredients) {
+            val id = getIngredientIdByName(ingredient)
+            if (id != -1) {
+                val values = ContentValues().apply {
+                    put(INGREDIENT_ID_FRIGIDAIRE, id)
+                    put(QUANT_FRIGIDAIRE, 1)
+                }
+                db.insert(TBL_FRIGIDAIRE, null, values)
+            } else {
+                Log.e("TAG", "Ingredient $ingredient not found")
+            }
+        }
+    }
+
+    private fun getIngredientIdByName(name: String): Int {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT $ID_TABLE_INGREDIENT FROM $TBL_INGREDIENT WHERE $NAME_INGREDIENT = ?", arrayOf(name))
+        return if (cursor.moveToFirst()) {
+            cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_INGREDIENT))
+        } else {
+            -1
+        }
+    }
+
+
+
 }
-
-

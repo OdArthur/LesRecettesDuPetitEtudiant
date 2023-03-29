@@ -24,6 +24,8 @@ class AddIngredientsToFridge : AppCompatActivity() {
         val searchEditText = findViewById<EditText>(R.id.searchEditText)
         val listView = findViewById<ListView>(R.id.listIngredients)
 
+        val selectedIngredients = mutableListOf<String>()
+
         db.searchAndDisplay(listView, "")
 
         searchEditText.addTextChangedListener(object : TextWatcher {
@@ -39,6 +41,17 @@ class AddIngredientsToFridge : AppCompatActivity() {
                 // Do nothing
             }
         })
+
+        listView.setOnItemClickListener { parent, view, position, id ->
+            val selectedIngredient = parent.getItemAtPosition(position) as String
+            selectedIngredients.add(selectedIngredient)
+        }
+
+        val addBtn = findViewById<Button>(R.id.AddBTN)
+        addBtn.setOnClickListener {
+            db.addIngredientsToFridge(selectedIngredients)
+            finish()
+        }
 
         val createButton = findViewById<Button>(R.id.createIngredients)
         createButton.setOnClickListener {
