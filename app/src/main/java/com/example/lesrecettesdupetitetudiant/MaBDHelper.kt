@@ -105,10 +105,11 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         }
     }
 
-    fun displayRecipe(listView: ListView) {
+    fun displayRecipe(listView: ListView):ArrayList<Int> {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE", null)
         val listItems = ArrayList<String>()
+        val listItemsID = ArrayList<Int>()
 
         if (cursor.count == 0) {
             listItems.add("Vous n'avez aucune recette ç_ç")
@@ -116,13 +117,23 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             if (cursor.moveToFirst()) {
                 do {
                     val RecipeTitle = cursor.getString(cursor.getColumnIndexOrThrow(TITLE_RECETTE))
+                    val RecipeID = cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_RECETTE))
                     listItems.add(RecipeTitle)
+                    listItemsID.add(RecipeID)
                 } while (cursor.moveToNext())
             }
         }
 
         val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
         listView.adapter = adapter
+        return listItemsID
+    }
+
+    fun GetRecipe(ID:Int):Cursor
+    {
+        val db = this.readableDatabase
+        return db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $ID_TABLE_RECETTE = $ID", null)
+
     }
 
     fun addToBasket(name:String, unit:String, quantity:Int)
