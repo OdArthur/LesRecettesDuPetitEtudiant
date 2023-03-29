@@ -3,6 +3,7 @@ package com.example.lesrecettesdupetitetudiant
 import android.R
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
@@ -158,15 +159,19 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
 
 
-    fun searchAndDisplay(listView: ListView, searchQuery: String) {
+    fun searchAndDisplay(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>?) {
         val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
+        var cursor: Cursor? = null
         val listItems = ArrayList<String>()
 
-        if (cursor.moveToFirst()) {
+        cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
+
+        if (cursor?.moveToFirst() == true) {
             do {
                 val nameIngredient = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
-                listItems.add(nameIngredient)
+                val clickCount = ingredientClickCounts?.get(nameIngredient) ?: 0
+                val listItem = if (clickCount >= 2) "$nameIngredient (${clickCount})" else nameIngredient
+                listItems.add(listItem)
             } while (cursor.moveToNext())
         } else {
             listItems.add("Aucun résultat trouvé.")
@@ -182,20 +187,41 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         contentValues.put(NAME_INGREDIENT, name)
         db.insert(TBL_INGREDIENT, null, contentValues)
     }
-    fun addIngredientsToFridge(ingredients: List<String>) {
+    fun addIngredientsToFridge(ingredients: HashMap<String, Int>) {
         val db = writableDatabase
-        for (ingredient in ingredients) {
+        for ((ingredient, quantity) in ingredients) {
             val id = getIngredientIdByName(ingredient)
             if (id != -1) {
-                val values = ContentValues().apply {
-                    put(INGREDIENT_ID_FRIGIDAIRE, id)
-                    put(QUANT_FRIGIDAIRE, 1)
+                val currentQuantity = getIngredientQuantityFromFridge(id)
+                if (currentQuantity != -1) {
+                    val newQuantity = currentQuantity + quantity
+                    val values = ContentValues().apply {
+                        put(INGREDIENT_ID_FRIGIDAIRE, id)
+                        put(QUANT_FRIGIDAIRE, newQuantity)
+                    }
+                    db.update(TBL_FRIGIDAIRE, values, "$INGREDIENT_ID_FRIGIDAIRE=?", arrayOf(id.toString()))
+                } else {
+                    val values = ContentValues().apply {
+                        put(INGREDIENT_ID_FRIGIDAIRE, id)
+                        put(QUANT_FRIGIDAIRE, quantity)
+                    }
+                    db.insert(TBL_FRIGIDAIRE, null, values)
                 }
-                db.insert(TBL_FRIGIDAIRE, null, values)
             } else {
                 Log.e("TAG", "Ingredient $ingredient not found")
             }
         }
+    }
+
+    fun getIngredientQuantityFromFridge(ingredientId: Int): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT $QUANT_FRIGIDAIRE FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = $ingredientId", null)
+        var quantity = -1
+        if (cursor.moveToFirst()) {
+            quantity = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE))
+        }
+        cursor.close()
+        return quantity
     }
 
     private fun getIngredientIdByName(name: String): Int {

@@ -15,7 +15,7 @@ import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddIngredients
 
 class AddIngredientsToFridge : AppCompatActivity() {
     private lateinit var binding: ActivityAddIngredientsToFridgeBinding
-
+    private lateinit var st: String
     companion object {
         const val REQUEST_CODE_ADD_INGREDIENT = 1
     }
@@ -25,19 +25,28 @@ class AddIngredientsToFridge : AppCompatActivity() {
 
         binding = ActivityAddIngredientsToFridgeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        st = ""
 
         var db:MaBDHelper = MaBDHelper(this)
 
         val searchEditText = findViewById<EditText>(R.id.searchEditText)
         val listView = findViewById<ListView>(R.id.listIngredients)
 
-        val selectedIngredients = mutableListOf<String>()
+        val selectedIngredients = HashMap<String, Int>()
 
-        db.searchAndDisplay(listView, "")
+        db.searchAndDisplay(listView, "", selectedIngredients)
+
+        listView.setOnItemClickListener { parent, view, position, id ->
+            val selectedIngredient = parent.getItemAtPosition(position) as String
+            val currentCount = selectedIngredients.getOrDefault(selectedIngredient, 0)
+            selectedIngredients[selectedIngredient] = currentCount + 1
+            //db.searchAndDisplay(listView, st, selectedIngredients)
+        }
 
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                db.searchAndDisplay(listView, s.toString())
+                db.searchAndDisplay(listView, s.toString(), selectedIngredients)
+                st = s.toString()
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -49,10 +58,6 @@ class AddIngredientsToFridge : AppCompatActivity() {
             }
         })
 
-        listView.setOnItemClickListener { parent, view, position, id ->
-            val selectedIngredient = parent.getItemAtPosition(position) as String
-            selectedIngredients.add(selectedIngredient)
-        }
 
         val addBtn = findViewById<Button>(R.id.AddBTN)
         addBtn.setOnClickListener {
@@ -67,7 +72,7 @@ class AddIngredientsToFridge : AppCompatActivity() {
                 if (name != null) {
                     val db = MaBDHelper(applicationContext)
                     val listView = findViewById<ListView>(R.id.listIngredients)
-                    db.searchAndDisplay(listView, name)
+                    db.searchAndDisplay(listView, name, selectedIngredients)
                 }
             }
         }
