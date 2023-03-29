@@ -2,6 +2,7 @@ package com.example.lesrecettesdupetitetudiant
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.size
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddIngredientsToFridgeBinding
 
 class AddIngredientsToFridge : AppCompatActivity() {
@@ -36,10 +38,12 @@ class AddIngredientsToFridge : AppCompatActivity() {
 
         db.searchAndDisplay(listView, "", selectedIngredients)
 
+
         listView.setOnItemClickListener { parent, view, position, id ->
             val selectedIngredient = parent.getItemAtPosition(position) as String
             val currentCount = selectedIngredients.getOrDefault(selectedIngredient, 0)
             selectedIngredients[selectedIngredient] = currentCount + 1
+            view.setBackgroundColor(Color.LTGRAY)
             //db.searchAndDisplay(listView, st, selectedIngredients)
         }
 
