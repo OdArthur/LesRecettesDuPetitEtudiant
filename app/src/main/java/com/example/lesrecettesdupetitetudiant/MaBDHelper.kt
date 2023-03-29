@@ -196,7 +196,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             do {
                 val nameIngredient = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
                 val clickCount = ingredientClickCounts?.get(nameIngredient) ?: 0
-                val listItem = if (clickCount >= 2) "$nameIngredient (${clickCount})" else nameIngredient
+                val listItem = if (clickCount >= 2) "$nameIngredient" else nameIngredient
                 listItems.add(listItem)
             } while (cursor.moveToNext())
         } else {
