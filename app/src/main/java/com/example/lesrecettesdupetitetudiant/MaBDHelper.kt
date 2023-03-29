@@ -22,7 +22,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val INGREDIENT_ID_FRIGIDAIRE = "ingredient_id_frigidaire"
         private const val QUANT_FRIGIDAIRE = "quant_frigidaire"
         private const val ID_TABLE_FRIGIDAIRE = "id_table_frigidaire"
-        private const val FK_CONSTRAINT_INGREDIENT_ID_FRIGIDAIRE = "fk_contraint_ingredient_id_frigidaire"
 
         private const val TBL_RECETTE = "tbl_recette"
         private const val ID_TABLE_RECETTE = "id_table_recette"
@@ -33,7 +32,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val INGREDIENT_ID_PANIER = "ingredient_id_panier"
         private const val QUANT_PANIER = "quant_panier"
         private const val ID_TABLE_PANIER = "id_table_panier"
-        private const val FK_CONSTRAINT_INGREDIENT_ID_PANIER = "fk_constraint_ingredient_id_panier"
 
         private const val TBL_INGREDIENT = "tbl_ingredient"
         private const val NAME_INGREDIENT= "name_ingredient"
@@ -43,15 +41,12 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val TBL_UNIT = "tbl_unit"
         private const val ID_TABLE_UNIT = "id_table_unit"
         private const val NAME_UNIT = "name_unit"
-        private const val FK_CONSTRAINT_INGREDIENT_UNIT_ID_INGREDIENT = "fk_constraint_ingredient_unit_id_ingredient"
 
         private const val TBL_INGREDIENT_REQUIS = "tbl_ingredient_requis"
         private const val ID_TABLE_INGREDIENT_REQUIS = "id_table_ingredient_requis"
         private const val RECETTE_ID_INGREDIENT_REQUIS = "recette_id_ingredient_requis"
         private const val INGREDIENT_ID_INGREDIENT_REQUIS = "ingredient_id_ingredient_requis"
         private const val QUANT_INGREDIENT_REQUIS = "quant_ingredient_requis"
-        private const val FK_CONSTRAINT_RECETTE_ID_INGREDIENT_REQUIS = "fk_constraint_recette_id_ingredient_requis"
-        private const val FK_CONSTRAINT_INGREDIENT_ID_INGREDIENT_REQUIS = "fk_constraint_ingredient_id_ingredient_requis"
 
 
     }
@@ -100,7 +95,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         cv.put(TITLE_RECETTE, title)
         cv.put(DESC_RECETTE, Description)
         val result = db.insert(TBL_RECETTE, null, cv)
-        if (result.equals(-1))
+        if (result.toInt() == -1)
         {
             Toast.makeText(context, "adding a recipe have failed", Toast.LENGTH_SHORT).show()
         }
@@ -110,16 +105,36 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         }
     }
 
+    fun displayRecipe(listView: ListView) {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE", null)
+        val listItems = ArrayList<String>()
+
+        if (cursor.count == 0) {
+            listItems.add("Vous n'avez aucune recette ç_ç")
+        } else {
+            if (cursor.moveToFirst()) {
+                do {
+                    val RecipeTitle = cursor.getString(cursor.getColumnIndexOrThrow(TITLE_RECETTE))
+                    listItems.add(RecipeTitle)
+                } while (cursor.moveToNext())
+            }
+        }
+
+        val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
+        listView.adapter = adapter
+    }
+
     fun addToBasket(name:String, unit:String, quantity:Int)
     {
         val db:SQLiteDatabase = this.writableDatabase
         val cv:ContentValues = ContentValues()
 
-        cv.put(NAME_INGREDIENT, name)
-        cv.put(QUANT_INGREDIENT_REQUIS, quantity)
-        cv.put(UNIT_ID_INGREDIENT, unit)
+        //cv.put(INGREDIENT_ID_PANIER, unit)
+        cv.put(QUANT_PANIER, quantity)
+
         val result = db.insert(TBL_PANIER, null, cv)
-        if (result.equals(-1))
+        if (result.toInt() == -1)
         {
             Toast.makeText(context, "adding to basket have failed", Toast.LENGTH_SHORT).show()
         }
