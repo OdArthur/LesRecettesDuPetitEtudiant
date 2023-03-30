@@ -47,6 +47,11 @@ class SlideshowFragment : Fragment() {
         return root
     }
 
+    override fun onResume() {
+        super.onResume()
+        db.displayRecipe(binding.ListRecipe)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -1,9 +1,8 @@
 package com.example.lesrecettesdupetitetudiant
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.text.method.ScrollingMovementMethod
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityShowRecipeBinding
 
 
@@ -32,6 +31,7 @@ class ShowRecipe : AppCompatActivity() {
             cursor.moveToFirst()
             binding.RecipeTitle.text = cursor.getString(cursor.getColumnIndexOrThrow("title_recette"))
             binding.RecipeDescription.text = cursor.getString(cursor.getColumnIndexOrThrow("desc_recette"))
+            binding.RecipeDescription.movementMethod = ScrollingMovementMethod()
         }
     }
 }
