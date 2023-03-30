@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Spinner
 import android.widget.Toast
 
 class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null, VERSION_BD) {
@@ -182,7 +183,21 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         listView.adapter = adapter
     }
 
+    fun GetIngredient() : ArrayList<String> {
+        val db = this.readableDatabase
+        var cursor: Cursor? = null
+        val listItems = ArrayList<String>()
 
+        cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT", null)
+
+        if (cursor?.moveToFirst() == true) {
+            do {
+                val nameIngredient = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
+                listItems.add(nameIngredient)
+            } while (cursor.moveToNext())
+        }
+        return listItems
+    }
 
 
     fun searchAndDisplay(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>?) {

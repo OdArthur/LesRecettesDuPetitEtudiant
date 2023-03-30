@@ -4,6 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityMainBinding
@@ -19,12 +24,14 @@ class AddToBasket : AppCompatActivity(){
         binding = ActivityAddToBasketBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.BTNAdd.setOnClickListener{
+        var db: MaBDHelper = MaBDHelper(this)
+        binding.IngredientDropDown.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, db.GetIngredient())
+
+            binding.BTNAdd.setOnClickListener{
                 view ->
-            var db: MaBDHelper = MaBDHelper(this)
             db.addToBasket(
-                binding.BasketIngredient.text.toString().trim(),
-                binding.BasketUnit.text.toString().trim(),
+                "IngredientName",
+                "IngredientUnit",
                 binding.BasketQuantity.text.toString().trim().toInt(),
             )
             /*Snackbar.make(view, binding.BasketTitle.text.toString().trim(), Snackbar.LENGTH_LONG)

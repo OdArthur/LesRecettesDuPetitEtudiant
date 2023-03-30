@@ -49,7 +49,15 @@ class SlideshowFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        db.displayRecipe(binding.ListRecipe)
+
+        val ItemsID = db.displayRecipe(binding.ListRecipe)
+
+        binding.ListRecipe.setOnItemClickListener { parent, view, position, id ->
+            val selectedRecipe = ItemsID.get(id.toInt())
+            val intent = Intent(binding.root.context, ShowRecipe::class.java)
+            intent.putExtra("ID", selectedRecipe)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroyView() {
