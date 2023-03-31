@@ -28,6 +28,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val ID_TABLE_RECETTE = "id_table_recette"
         private const val TITLE_RECETTE = "title_recette"
         private const val DESC_RECETTE = "desc_recette"
+        private const val FAV_RECETTE = "fav_recette"
 
         private const val TBL_PANIER = "tbl_panier"
         private const val INGREDIENT_ID_PANIER = "ingredient_id_panier"
@@ -64,7 +65,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
 
         val createTblRecette=("CREATE TABLE " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TITLE_RECETTE + " VARCHAR(130), "
-                + DESC_RECETTE + ");")
+                + DESC_RECETTE + " TEXT, " + FAV_RECETTE + " INTEGER " + ");")
         db.execSQL(createTblRecette)
 
 
