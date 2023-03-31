@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddToBasketBinding
+import com.google.android.material.snackbar.Snackbar
 
 class AddToBasket : AppCompatActivity(){
     private lateinit var binding: ActivityAddToBasketBinding
@@ -19,13 +20,13 @@ class AddToBasket : AppCompatActivity(){
 
             binding.BTNAdd.setOnClickListener{
                 view ->
-            db.addToBasket(
+            /*db.addToBasket(
                 "IngredientName",
                 "IngredientUnit",
-                binding.BasketQuantity.text.toString().trim().toInt(),
-            )
-            /*Snackbar.make(view, binding.BasketTitle.text.toString().trim(), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()*/
+                binding.BasketQuantity.text.toString().trim().toInt()
+            )*/
+            Snackbar.make(view, "Selected ingredient : " +  binding.IngredientDropDown.selectedItem.toString(), Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
         }
     }
 }
