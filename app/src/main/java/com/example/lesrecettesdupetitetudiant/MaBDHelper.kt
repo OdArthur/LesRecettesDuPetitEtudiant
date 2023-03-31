@@ -65,7 +65,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
 
         val createTblRecette=("CREATE TABLE " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TITLE_RECETTE + " VARCHAR(130), "
-                + DESC_RECETTE + " TEXT, " + FAV_RECETTE + " INTEGER " + ");")
+                + DESC_RECETTE + " TEXT, " + FAV_RECETTE + " INTEGER NOT NULL DEFAULT 0);")
         db.execSQL(createTblRecette)
 
 
@@ -136,6 +136,26 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val db = this.readableDatabase
         return db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $ID_TABLE_RECETTE = $ID", null)
 
+    }
+
+    fun EditRecipe(RecipeTitle:String, RecipeDescription:String, RecipeID:Int)
+    {
+        val db = this.writableDatabase
+
+        var cv:ContentValues = ContentValues()
+        cv.put(TITLE_RECETTE, RecipeTitle)
+        cv.put(DESC_RECETTE, RecipeDescription)
+
+        db.update(TBL_RECETTE, cv, "$ID_TABLE_RECETTE = $RecipeID", null)
+    }
+
+    fun FavRecipe(RecipeID: Int, Fav:Boolean)
+    {
+        val db = this.writableDatabase
+        var cv:ContentValues = ContentValues()
+        cv.put(FAV_RECETTE, Fav)
+
+        db.update(TBL_RECETTE, cv, "$ID_TABLE_RECETTE = $RecipeID",null)
     }
 
     fun addToBasket(name:String, unit:String, quantity:Int)

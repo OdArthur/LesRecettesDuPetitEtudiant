@@ -13,6 +13,13 @@
         android:theme="@style/Theme.LesRecettesDuPetitEtudiant"
         tools:targetApi="31">
         <activity
+            android:name=".EditRecipe"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ShowRecipe"
             android:exported="false"
             android:label="Votre recette IN CRO YABLE !!">
