@@ -202,14 +202,15 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
         val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
         listView.adapter = adapter
+
+        cursor.close()
     }
 
     fun GetIngredient() : ArrayList<String> {
         val db = this.readableDatabase
-        var cursor: Cursor? = null
         val listItems = ArrayList<String>()
 
-        cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT", null)
+        val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT", null)
 
         if (cursor?.moveToFirst() == true) {
             do {
@@ -217,30 +218,32 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 listItems.add(nameIngredient)
             } while (cursor.moveToNext())
         }
+        cursor.close()
         return listItems
     }
 
 
-    fun searchAndDisplay(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>?) {
+    fun searchAndDisplayIngredients(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>?, itemBackgroundStates: MutableSet<String>) {
         val db = this.readableDatabase
-        var cursor: Cursor? = null
         val listItems = ArrayList<String>()
+        val clickCounts = ArrayList<Int>()
 
-        cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
+        val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
 
         if (cursor?.moveToFirst() == true) {
             do {
                 val nameIngredient = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
-                val clickCount = ingredientClickCounts?.get(nameIngredient) ?: 0
-                val listItem = if (clickCount >= 2) "$nameIngredient" else nameIngredient
-                listItems.add(listItem)
+                listItems.add(nameIngredient)
+                val clickCount = ingredientClickCounts?.get(nameIngredient) ?: 0 // Récupérez la valeur correspondante de la HashMap, ou 0 si elle n'existe pas
+                clickCounts.add(clickCount) // Ajoutez la valeur correspondante à la nouvelle liste
             } while (cursor.moveToNext())
         } else {
             listItems.add("Aucun résultat trouvé.")
         }
 
-        val adapter = ArrayAdapter(this.context, android.R.layout.simple_list_item_1, listItems)
+        val adapter = IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates)
         listView.adapter = adapter
+        cursor.close()
     }
 
     fun addIngredient(name: String) {
@@ -275,7 +278,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         }
     }
 
-    fun getIngredientQuantityFromFridge(ingredientId: Int): Int {
+    private fun getIngredientQuantityFromFridge(ingredientId: Int): Int {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT $QUANT_FRIGIDAIRE FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = $ingredientId", null)
         var quantity = -1
@@ -289,13 +292,13 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     private fun getIngredientIdByName(name: String): Int {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT $ID_TABLE_INGREDIENT FROM $TBL_INGREDIENT WHERE $NAME_INGREDIENT = ?", arrayOf(name))
-        return if (cursor.moveToFirst()) {
+        val result = if (cursor.moveToFirst()) {
             cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_INGREDIENT))
         } else {
             -1
         }
+        cursor.close()
+        return result
     }
-
-
 
 }
