@@ -1,6 +1,7 @@
 package com.example.lesrecettesdupetitetudiant
 
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddRecipeBinding
@@ -17,11 +18,13 @@ class AddRecipe : AppCompatActivity() {
 
         binding.BTNAdd.setOnClickListener{
             view ->
-            var db:MaBDHelper = MaBDHelper(this)
-            db.addRecipe(
-                binding.RecipeTitle.text.toString().trim(),
-                binding.RecipeDescription.text.toString().trim(),
-            )
+            intent = Intent(this, AddIngredientToRecipe::class.java)
+            intent.putExtra("RecipeTitle", binding.RecipeTitle.text.toString().trim())
+            intent.putExtra("RecipeDescription", binding.RecipeDescription.text.toString().trim())
+            startActivity(intent)
+
+
+
         }
     }
 }

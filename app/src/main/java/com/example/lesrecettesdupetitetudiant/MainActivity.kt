@@ -13,7 +13,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityMainBinding
 
 
@@ -32,6 +31,14 @@ class MainActivity : AppCompatActivity() {
         sqliteHelper = MaBDHelper(this)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+
+        val Return = intent.getStringExtra("Return")
+
+        if(Return == "Recipe")
+        {
+
+            Snackbar.make(binding.navView, "Recettes", Snackbar.LENGTH_SHORT).setAction("Action", null).show()
+        }
 
         binding.appBarMain.fab.setOnClickListener {
             view -> if(binding.appBarMain.toolbar.title.toString() == "Recettes")

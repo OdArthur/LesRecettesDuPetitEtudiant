@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityEditRecipeBinding
 
+class EditRecipe : AppCompatActivity() {
+
     private lateinit var binding: ActivityEditRecipeBinding
     private lateinit var db:MaBDHelper
 
-class EditRecipe : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_recipe)
