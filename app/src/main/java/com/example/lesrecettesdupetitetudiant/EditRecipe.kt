@@ -1,5 +1,6 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -38,6 +39,14 @@ class EditRecipe : AppCompatActivity() {
             view->
             db.EditRecipe(binding.recipeTitle.text.toString(), binding.recipeDescription.text.toString(), RecipeID)
             finish()
+        }
+
+        binding.BTNDelete.setOnClickListener{
+            db.deleteRecipe(RecipeID)
+            //TODO go to main menu
+            intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("Return", "Recipe")
+            startActivity(intent)
         }
     }
 }

@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Spinner
 import android.widget.Toast
 
 class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null, VERSION_BD) {
@@ -185,6 +184,13 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
         listView.adapter = adapter
         cursor.close()
+    }
+
+    fun deleteRecipe(RecipeID: Int)
+    {
+        val db = this.writableDatabase
+        db.execSQL("DELETE FROM $TBL_RECETTE WHERE $ID_TABLE_RECETTE = $RecipeID")
+        Toast.makeText(context, "Deleted Recipe",Toast.LENGTH_SHORT).show()
     }
 
     fun addToBasket(name:String, unit:String, quantity:Int)
