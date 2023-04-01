@@ -2,6 +2,8 @@ package com.example.lesrecettesdupetitetudiant.ui.slideshow
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +45,24 @@ class SlideshowFragment : Fragment() {
             intent.putExtra("ID", selectedRecipe)
             startActivity(intent)
         }
+
+        binding.switchFav.setOnCheckedChangeListener { _, isChecked ->
+            db.searchAndDisplayRecipe(binding.ListRecipe, binding.searchRecip.text.toString(), isChecked)
+        }
+
+        binding.searchRecip.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                db.searchAndDisplayRecipe(binding.ListRecipe, s.toString(), binding.switchFav.isChecked)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Do nothing
+            }
+        })
 
         return root
     }

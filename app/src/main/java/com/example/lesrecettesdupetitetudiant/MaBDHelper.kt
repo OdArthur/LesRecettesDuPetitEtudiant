@@ -158,6 +158,35 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         db.update(TBL_RECETTE, cv, "$ID_TABLE_RECETTE = $RecipeID",null)
     }
 
+    fun searchAndDisplayRecipe(listView: ListView, searchQuery: String?, IsFav:Boolean) {
+        val db = this.readableDatabase
+        val listItems = ArrayList<String>()
+
+        var cursor:Cursor
+        if(IsFav)
+        {
+            cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%' AND $FAV_RECETTE = 1", null)
+        }
+        else
+        {
+            cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%'", null)
+        }
+
+
+        if (cursor?.moveToFirst() == true) {
+            do {
+                val nameRecipe = cursor.getString(cursor.getColumnIndexOrThrow(TITLE_RECETTE))
+                listItems.add(nameRecipe)
+            } while (cursor.moveToNext())
+        } else {
+            listItems.add("Aucun résultat trouvé.")
+        }
+
+        val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
+        listView.adapter = adapter
+        cursor.close()
+    }
+
     fun addToBasket(name:String, unit:String, quantity:Int)
     {
         val db:SQLiteDatabase = this.writableDatabase
