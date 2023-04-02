@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.lesrecettesdupetitetudiant.AddRecipe
 import com.example.lesrecettesdupetitetudiant.MaBDHelper
 import com.example.lesrecettesdupetitetudiant.ShowRecipe
 import com.example.lesrecettesdupetitetudiant.databinding.FragmentSlideshowBinding

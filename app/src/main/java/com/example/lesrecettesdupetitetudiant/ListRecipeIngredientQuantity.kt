@@ -1,0 +1,69 @@
+package com.example.lesrecettesdupetitetudiant
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+import android.widget.ArrayAdapter
+import com.example.lesrecettesdupetitetudiant.databinding.ActivityListRecipeIngredientQuantityBinding
+
+class ListRecipeIngredientQuantity : AppCompatActivity() {
+    private lateinit var db:MaBDHelper
+    private lateinit var binding: ActivityListRecipeIngredientQuantityBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_list_recipe_ingredient_quantity)
+
+        var RecipeTitle = intent.getStringExtra("RecipeTitle")
+        var RecipeDescription = intent.getStringExtra("RecipeDescription")
+        val Ingredients = intent.getStringArrayExtra("Ingredients")
+
+        if(RecipeTitle == null)
+        {
+            RecipeTitle = "error"
+        }
+
+        if(RecipeDescription == null)
+        {
+            RecipeDescription = "error"
+        }
+
+        binding = ActivityListRecipeIngredientQuantityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        db = MaBDHelper(binding.root.context)
+
+        var adapter:IngredientQuantityAdapter
+
+        if(Ingredients != null)
+        {
+
+            if (Ingredients.size == 0)
+            {
+                val tempList:ArrayList<String> = arrayListOf("ERROR")
+                adapter = IngredientQuantityAdapter(this, tempList)
+            }
+            else
+            {
+                val ListIngredients = ArrayList<String>(Ingredients.size)
+                Ingredients.toCollection(ListIngredients)
+                adapter = IngredientQuantityAdapter(this, ListIngredients)
+            }
+        }
+        else
+        {
+            val tempList:ArrayList<String> = arrayListOf("ERROR")
+            adapter = IngredientQuantityAdapter(this, tempList)
+        }
+
+
+        binding.ListIngredientQuantity.adapter = adapter
+
+        binding.BTNAddRecipe.setOnClickListener{
+            view->
+            val IngredientQuant = adapter.GetQuant()
+            db.addRecipe(RecipeTitle, RecipeDescription)
+        }
+
+    }
+}

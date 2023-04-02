@@ -3,8 +3,10 @@ package com.example.lesrecettesdupetitetudiant
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityAddIngredientToRecipeBinding
+import com.google.android.material.snackbar.Snackbar
 
 class AddIngredientToRecipe : AppCompatActivity() {
 
@@ -25,11 +27,28 @@ class AddIngredientToRecipe : AppCompatActivity() {
 
         binding.ListIngredientsRecipe.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, db.GetIngredient())
 
+        var selectedIngredients = arrayOf<String>()
+
+        binding.ListIngredientsRecipe.setOnItemClickListener { parent, view, position, _ ->
+            if(selectedIngredients.indexOf(parent.getItemAtPosition(position) as String) != -1 )
+            {
+                val tempMutable = selectedIngredients.toMutableList()
+                tempMutable.removeAt(selectedIngredients.indexOf(parent.getItemAtPosition(position) as String))
+                selectedIngredients = tempMutable.toTypedArray()
+            }
+            else
+            {
+                selectedIngredients = selectedIngredients.plus(parent.getItemAtPosition(position) as String)
+            }
+
+        }
+
         binding.BTNValidate.setOnClickListener{
             view->
-            db.addRecipe(RecipeTitle, RecipeDescription)
-            intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("Return", "Recipe")
+            intent = Intent(this, ListRecipeIngredientQuantity::class.java)
+            intent.putExtra("RecipeTitle", RecipeTitle)
+            intent.putExtra("RecipeDescription", RecipeDescription)
+            intent.putExtra("Ingredients", selectedIngredients)
             startActivity(intent)
         }
     }
