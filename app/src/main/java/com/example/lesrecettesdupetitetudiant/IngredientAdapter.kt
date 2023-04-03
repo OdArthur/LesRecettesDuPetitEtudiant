@@ -19,7 +19,7 @@ class IngredientAdapter(
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val rowView = convertView ?: inflater.inflate(R.layout.list_item_ingredient, parent, false)
 
-        val numberTextView = rowView.findViewById<TextView>(R.id.TXTQuantityIngredientName)
+        val numberTextView = rowView.findViewById<TextView>(R.id.itemNameTextView)
         val itemTextView = rowView.findViewById<TextView>(R.id.itemClickCountTextView)
 
         val number = if (numbers.size > position) numbers[position] else 0
