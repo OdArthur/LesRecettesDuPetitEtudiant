@@ -1,5 +1,6 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -63,6 +64,8 @@ class ListRecipeIngredientQuantity : AppCompatActivity() {
             view->
             val IngredientQuant = adapter.GetQuant()
             db.addRecipe(RecipeTitle, RecipeDescription)
+            intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
     }
