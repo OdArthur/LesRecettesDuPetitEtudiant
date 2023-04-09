@@ -5,17 +5,18 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
+    <EditText
+        android:id="@+id/itemClickCountEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:textSize="16sp"/>
+
     <TextView
         android:id="@+id/itemNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="16sp"/>
-
-    <TextView
-        android:id="@+id/itemClickCountTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:paddingStart="16dp"
         android:textSize="16sp"/>
 

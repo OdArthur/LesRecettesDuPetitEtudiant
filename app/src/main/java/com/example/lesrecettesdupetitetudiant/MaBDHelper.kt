@@ -213,7 +213,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     }
 
     fun displayFridge(listView: ListView) {
-        Log.d("TAG" , "display fridge function called")
         val db = this.readableDatabase
         val query = "SELECT TBL_INGREDIENT.NAME_INGREDIENT, TBL_FRIGIDAIRE.QUANT_FRIGIDAIRE " +
                 "FROM TBL_FRIGIDAIRE " +
@@ -258,7 +257,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     }
 
 
-    fun searchAndDisplayIngredients(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>?, itemBackgroundStates: MutableSet<String>) {
+    fun searchAndDisplayIngredients(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>, itemBackgroundStates: MutableSet<String>, onItemClick: (selectedIngredient: String) -> Unit) {
         val db = this.readableDatabase
         val listItems = ArrayList<String>()
         val clickCounts = ArrayList<Int>()
@@ -276,7 +275,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             listItems.add("Aucun résultat trouvé.")
         }
 
-        val adapter = IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates)
+        val adapter = IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, onItemClick)
         listView.adapter = adapter
         cursor.close()
     }

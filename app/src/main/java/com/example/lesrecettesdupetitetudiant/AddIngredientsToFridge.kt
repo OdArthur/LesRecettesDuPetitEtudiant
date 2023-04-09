@@ -16,41 +16,38 @@ class AddIngredientsToFridge : AppCompatActivity() {
     private lateinit var binding: ActivityAddIngredientsToFridgeBinding
     private lateinit var st: String
     private val itemBackgroundStates = mutableSetOf<String>()
-    private var selectedIndexInOriginalList = -1
+    private val db = MaBDHelper(this)
+    private lateinit var listView: ListView
+    private val selectedIngredients = HashMap<String, Int>()
 
+    private val onItemClick: (selectedIngredient: String) -> Unit = { selectedIngredient ->
+        val currentCount = selectedIngredients.getOrDefault(selectedIngredient, 0)
+        selectedIngredients[selectedIngredient] = currentCount + 1
+        if(!itemBackgroundStates.contains(selectedIngredient))
+        {
+            itemBackgroundStates.add(selectedIngredient)
+        }
+        callSearchAndDisplayIngredientsDbFunction()
+    }
+
+    private val callSearchAndDisplayIngredientsDbFunction:() -> Unit = {
+        db.searchAndDisplayIngredients(listView, st, selectedIngredients, itemBackgroundStates, onItemClick)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityAddIngredientsToFridgeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         st = ""
-
-        val db = MaBDHelper(this)
-
+        listView = findViewById(R.id.listIngredients)
         val searchEditText = findViewById<EditText>(R.id.searchEditText)
-        val listView = findViewById<ListView>(R.id.listIngredients)
 
-        val selectedIngredients = HashMap<String, Int>()
-
-        db.searchAndDisplayIngredients(listView, "", selectedIngredients, itemBackgroundStates)
-
-        listView.setOnItemClickListener { parent, _, position, _ ->
-            val selectedIngredient = parent.getItemAtPosition(position) as String
-            val currentCount = selectedIngredients.getOrDefault(selectedIngredient, 0)
-            selectedIngredients[selectedIngredient] = currentCount + 1
-            if(!itemBackgroundStates.contains(selectedIngredient))
-            {
-                itemBackgroundStates.add(selectedIngredient)
-            }
-            // Store the index of the selected item in the original list
-            selectedIndexInOriginalList = position
-            db.searchAndDisplayIngredients(listView, st, selectedIngredients, itemBackgroundStates)
-        }
+        callSearchAndDisplayIngredientsDbFunction()
 
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                db.searchAndDisplayIngredients(listView, s.toString(), selectedIngredients, itemBackgroundStates)
                 st = s.toString()
+                callSearchAndDisplayIngredientsDbFunction()
             }
 
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -74,7 +71,7 @@ class AddIngredientsToFridge : AppCompatActivity() {
                 val data: Intent? = result.data
                 val name = data?.getStringExtra("name_ingredient")
                 if (name != null) {
-                    db.searchAndDisplayIngredients(listView, name, selectedIngredients, itemBackgroundStates)
+                    callSearchAndDisplayIngredientsDbFunction()
                 }
             }
         }
