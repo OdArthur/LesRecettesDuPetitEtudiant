@@ -51,17 +51,22 @@ class IngredientAdapter(
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Update the selectedIngredients map with the new value
-                if (s.isNullOrEmpty()) {
-                    selectedIngredients[items[position]] = 0
-                    numbers[position] = 0
-                } else {
-                    selectedIngredients[items[position]] = s.toString().toInt()
-                    numbers[position] = s.toString().toInt()
-                }
+
             }
 
             override fun afterTextChanged(s: Editable?) {
+                // Update the selectedIngredients map with the new value
+                if (s.isNullOrEmpty() || s.toString().toInt() == 0) {
+                    selectedIngredients[items[position]] = 0
+                    numbers[position] = 0
+                    rowView!!.setBackgroundColor(Color.TRANSPARENT)
+                    highlightedItems.remove(items[position])
+                } else {
+                    selectedIngredients[items[position]] = s.toString().toInt()
+                    numbers[position] = s.toString().toInt()
+                    rowView!!.setBackgroundColor(Color.LTGRAY)
+                    highlightedItems.add(items[position])
+                }
             }
         })
 
