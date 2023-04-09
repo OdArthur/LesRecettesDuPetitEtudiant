@@ -1,5 +1,6 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.text.Editable
@@ -7,10 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 
 class IngredientAdapter(
     context: Context,
@@ -18,7 +16,8 @@ class IngredientAdapter(
     private val numbers: ArrayList<Int>,
     private val highlightedItems: MutableSet<String>,
     private val selectedIngredients: HashMap<String, Int>,
-    private val onItemClick: (selectedIngredient: String) -> Unit
+    private val onItemClick: (selectedIngredient: String) -> Unit,
+    private val showDeleteConfirmationDialog: (ingredientName: String) -> Unit
 ) : ArrayAdapter<String>(context, R.layout.list_item_ingredient, items) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -30,6 +29,7 @@ class IngredientAdapter(
 
         val numberEditText = rowView!!.findViewById<EditText>(R.id.itemClickCountEditText)
         val itemTextView = rowView!!.findViewById<TextView>(R.id.itemNameTextView)
+        val trashImage = rowView!!.findViewById<ImageView>(R.id.trash)
 
         val number = if (numbers.size > position) numbers[position] else 0
         numberEditText.setText(number.toString()) // Set the number
@@ -69,6 +69,10 @@ class IngredientAdapter(
                 }
             }
         })
+
+        trashImage.setOnClickListener{
+            showDeleteConfirmationDialog(getItem(position) as String)
+        }
 
         return rowView
     }

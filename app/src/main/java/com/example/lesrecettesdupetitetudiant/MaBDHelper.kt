@@ -10,6 +10,9 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null, VERSION_BD) {
     private val context = MyContext
@@ -257,10 +260,11 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     }
 
 
-    fun searchAndDisplayIngredients(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>, itemBackgroundStates: MutableSet<String>, onItemClick: (selectedIngredient: String) -> Unit) {
+    fun searchAndDisplayIngredients(listView: ListView, searchQuery: String?, ingredientClickCounts: HashMap<String, Int>, itemBackgroundStates: MutableSet<String>, onItemClick: (selectedIngredient: String) -> Unit, showDeleteConfirmationDialog: (ingredientName: String) -> Unit) {
         val db = this.readableDatabase
         val listItems = ArrayList<String>()
         val clickCounts = ArrayList<Int>()
+        var listIsEmpty = false
 
         val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
 
@@ -272,10 +276,11 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 clickCounts.add(clickCount) // Ajoutez la valeur correspondante à la nouvelle liste
             } while (cursor.moveToNext())
         } else {
-            listItems.add("Aucun résultat trouvé.")
+            listIsEmpty = true
         }
-
-        val adapter = IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, onItemClick)
+        val adapter = if (listIsEmpty)
+            NoResultsAdapter(this.context, listItems)
+        else IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, onItemClick, showDeleteConfirmationDialog)
         listView.adapter = adapter
         cursor.close()
     }
@@ -283,7 +288,8 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     fun addIngredient(name: String) {
         val db = this.writableDatabase
         val contentValues = ContentValues()
-        contentValues.put(NAME_INGREDIENT, name)
+        contentValues.put(NAME_INGREDIENT, name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
+            Locale.getDefault()) else it.toString() })
         db.insert(TBL_INGREDIENT, null, contentValues)
     }
     fun addIngredientsToFridge(ingredients: HashMap<String, Int>) {
@@ -333,6 +339,80 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         }
         cursor.close()
         return result
+    }
+
+    fun isIngredientUsedInRecipe(IngredientName: String): Boolean {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TBL_INGREDIENT_REQUIS " +
+                "WHERE $INGREDIENT_ID_INGREDIENT_REQUIS = " +
+                "(SELECT $ID_TABLE_INGREDIENT FROM $TBL_INGREDIENT " +
+                "WHERE $NAME_INGREDIENT = '$IngredientName')"
+        Log.d("TAG", "query: $query")
+        val cursor = db.rawQuery(query, null)
+        if (cursor != null && cursor.count > 0) {
+            val idIndex = cursor.getColumnIndex(ID_TABLE_INGREDIENT)
+            val nameIndex = cursor.getColumnIndex(NAME_INGREDIENT)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(idIndex)
+                val name = cursor.getString(nameIndex)
+                Log.d("TAG", "id: $id, name: $name")
+            }
+        } else {
+            Log.d("TAG", "Cursor is empty or null")
+        }
+
+        val result = cursor.count > 0
+        cursor.close()
+        db.close()
+        return result
+    }
+
+    fun isIngredientInCart(ingredientName: String): Boolean {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TBL_PANIER " +
+                "WHERE $INGREDIENT_ID_PANIER = " +
+                "(SELECT $ID_TABLE_INGREDIENT FROM $TBL_INGREDIENT " +
+                "WHERE $NAME_INGREDIENT = '$ingredientName')"
+        Log.d("TAG", "query: $query")
+        val cursor = db.rawQuery(query, null)
+        if (cursor != null && cursor.count > 0) {
+            val idIndex = cursor.getColumnIndex(ID_TABLE_INGREDIENT)
+            val nameIndex = cursor.getColumnIndex(NAME_INGREDIENT)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(idIndex)
+                val name = cursor.getString(nameIndex)
+                Log.d("TAG", "id: $id, name: $name")
+            }
+        } else {
+            Log.d("TAG", "Cursor is empty or null")
+        }
+
+        val result = cursor.count > 0
+        cursor.close()
+        db.close()
+        return result
+    }
+    fun deleteIngredientFromCart(name: String){
+        val db = this.writableDatabase
+        val ingredientId = getIngredientIdByName(name)
+        db.delete(TBL_PANIER, "$INGREDIENT_ID_PANIER = ?", arrayOf(ingredientId.toString()))
+    }
+
+    fun deleteRecipesWithIngredient(ingredientName: String) {
+        val db = this.writableDatabase
+        val ingredientId = getIngredientIdByName(ingredientName)
+
+        // Supprime toutes les recettes qui contiennent l'ingrédient
+        db.delete(TBL_INGREDIENT_REQUIS, "$INGREDIENT_ID_INGREDIENT_REQUIS = ?", arrayOf(ingredientId.toString()))
+    }
+
+    fun deleteIngredient(name: String){
+        val db = this.writableDatabase
+        val ingredientId = getIngredientIdByName(name)
+        db.delete(TBL_INGREDIENT, "$NAME_INGREDIENT=?", arrayOf(name))
+        db.delete(TBL_FRIGIDAIRE, "$INGREDIENT_ID_FRIGIDAIRE=?", arrayOf(ingredientId.toString()))
     }
 
 }
