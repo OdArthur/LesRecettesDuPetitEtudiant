@@ -59,7 +59,9 @@ class IngredientAdapter(
             override fun afterTextChanged(s: Editable?) {
                 // Update the selectedIngredients map with the new value
                 if (s.isNullOrEmpty() || s.toString().toInt() == 0) {
-                    selectedIngredients[items[position]] = 0
+                    if (selectedIngredients.containsKey(items[position])) {
+                        selectedIngredients.remove(items[position])
+                    }
                     numbers[position] = 0
                     rowView!!.setBackgroundColor(Color.TRANSPARENT)
                     highlightedItems.remove(items[position])
