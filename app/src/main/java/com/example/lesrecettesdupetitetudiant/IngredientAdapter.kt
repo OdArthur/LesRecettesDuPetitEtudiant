@@ -8,6 +8,8 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 
 class IngredientAdapter(
@@ -69,6 +71,27 @@ class IngredientAdapter(
                 }
             }
         })
+
+        numberEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && numberEditText.text.toString() == "0") {
+                numberEditText.setText("")
+            }
+        }
+
+        numberEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val text = numberEditText.text.toString()
+                if (text.isEmpty()) {
+                    numberEditText.setText("0")
+                }
+                numberEditText.clearFocus()
+                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(numberEditText.windowToken, 0)
+                true
+            } else {
+                false
+            }
+        }
 
         trashImage.setOnClickListener{
             showDeleteConfirmationDialog(getItem(position) as String)
