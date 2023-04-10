@@ -265,6 +265,9 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val listItems = ArrayList<String>()
         val clickCounts = ArrayList<Int>()
         var listIsEmpty = false
+        val scrollPosition = listView?.firstVisiblePosition ?: 0
+        val view = listView?.getChildAt(0)
+        val scrollTop = view?.top ?: 0
 
         val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT WHERE name_ingredient LIKE '%$searchQuery%'", null)
 
@@ -282,6 +285,11 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             NoResultsAdapter(this.context, listItems)
         else IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, onItemClick, showDeleteConfirmationDialog)
         listView.adapter = adapter
+
+        listView?.post {
+            listView?.setSelectionFromTop(scrollPosition, scrollTop)
+        }
+
         cursor.close()
     }
 
