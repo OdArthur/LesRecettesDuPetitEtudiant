@@ -41,6 +41,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val NAME_INGREDIENT= "name_ingredient"
         private const val UNIT_ID_INGREDIENT="unit_id_ingredient"
         private const val ID_TABLE_INGREDIENT="id_table_ingredient"
+        private const val FAV_INGREDIENT = "fav_ingredient"
 
         private const val TBL_UNIT = "tbl_unit"
         private const val ID_TABLE_UNIT = "id_table_unit"
@@ -62,7 +63,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
 
         val createTblIngredient = ("CREATE TABLE " + TBL_INGREDIENT + " (" + ID_TABLE_INGREDIENT + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME_INGREDIENT + " VARCHAR(50) UNIQUE, "
-                + UNIT_ID_INGREDIENT + " INTEGER, FOREIGN KEY (" + UNIT_ID_INGREDIENT + ") REFERENCES " + TBL_UNIT + " (" + ID_TABLE_UNIT + ") );" )
+                + UNIT_ID_INGREDIENT + " INTEGER, " + FAV_INGREDIENT + " INTEGER NOT NULL DEFAULT 0, FOREIGN KEY (" + UNIT_ID_INGREDIENT + ") REFERENCES " + TBL_UNIT + " (" + ID_TABLE_UNIT + ") );")
         db.execSQL(createTblIngredient)
 
 
@@ -264,6 +265,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val db = this.readableDatabase
         val listItems = ArrayList<String>()
         val clickCounts = ArrayList<Int>()
+        val isFavs = ArrayList<Boolean>()
         var listIsEmpty = false
         val scrollPosition = listView?.firstVisiblePosition ?: 0
         val view = listView?.getChildAt(0)
@@ -277,13 +279,20 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 listItems.add(nameIngredient)
                 val clickCount = ingredientClickCounts?.get(nameIngredient) ?: 0 // Récupérez la valeur correspondante de la HashMap, ou 0 si elle n'existe pas
                 clickCounts.add(clickCount) // Ajoutez la valeur correspondante à la nouvelle liste
+                val isFav = cursor.getInt(cursor.getColumnIndexOrThrow(FAV_INGREDIENT))
+                if(isFav == 1)
+                    isFavs.add(true)
+                else
+                    isFavs.add(false)
             } while (cursor.moveToNext())
         } else {
             listIsEmpty = true
         }
+
+
         val adapter = if (listIsEmpty)
             NoResultsAdapter(this.context, listItems)
-        else IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, onItemClick, showDeleteConfirmationDialog)
+        else IngredientAdapter(this.context, listItems, clickCounts, itemBackgroundStates, ingredientClickCounts, isFavs, onItemClick, showDeleteConfirmationDialog)
         listView.adapter = adapter
 
         listView?.post {
@@ -421,6 +430,24 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val ingredientId = getIngredientIdByName(name)
         db.delete(TBL_INGREDIENT, "$NAME_INGREDIENT=?", arrayOf(name))
         db.delete(TBL_FRIGIDAIRE, "$INGREDIENT_ID_FRIGIDAIRE=?", arrayOf(ingredientId.toString()))
+    }
+
+    fun addFavIngredient(ingredientName: String) {
+        val ingredientId = getIngredientIdByName(ingredientName)
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(FAV_INGREDIENT, 1)
+        db.update(TBL_INGREDIENT, values, "$ID_TABLE_INGREDIENT = ?", arrayOf(ingredientId.toString()))
+        db.close()
+    }
+
+    fun removeFavIngredient(ingredientName: String) {
+        val ingredientId = getIngredientIdByName(ingredientName)
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(FAV_INGREDIENT, 0)
+        db.update(TBL_INGREDIENT, values, "$ID_TABLE_INGREDIENT = ?", arrayOf(ingredientId.toString()))
+        db.close()
     }
 
 }

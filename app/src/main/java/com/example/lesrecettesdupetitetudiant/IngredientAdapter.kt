@@ -18,6 +18,7 @@ class IngredientAdapter(
     private val numbers: ArrayList<Int>,
     private val highlightedItems: MutableSet<String>,
     private val selectedIngredients: HashMap<String, Int>,
+    private val isFavs: ArrayList<Boolean>,
     private val onItemClick: (selectedIngredient: String) -> Unit,
     private val showDeleteConfirmationDialog: (ingredientName: String) -> Unit
 ) : ArrayAdapter<String>(context, R.layout.list_item_ingredient, items) {
@@ -43,6 +44,36 @@ class IngredientAdapter(
             rowView!!.setBackgroundColor(Color.TRANSPARENT)
         }
 
+        val favoriteToggle = rowView!!.findViewById<ImageView>(R.id.favorite_toggle)
+        val db = MaBDHelper(context)
+
+        if(isFavs[position])
+        {
+            favoriteToggle.setImageResource(R.drawable.ic_filled_star)
+        }
+        else
+        {
+            favoriteToggle.setImageResource(R.drawable.ic_empty_star)
+        }
+
+        sortItemsAlphabeticallyWithFavoritesFirst(items, numbers, isFavs)
+
+        favoriteToggle.setOnClickListener{
+            if(isFavs[position])
+            {
+                favoriteToggle.setImageResource(R.drawable.ic_empty_star)
+                db.removeFavIngredient(items[position])
+                isFavs[position] = false
+            }
+            else
+            {
+                favoriteToggle.setImageResource(R.drawable.ic_filled_star)
+                db.addFavIngredient(items[position])
+                isFavs[position] = true
+            }
+            sortItemsAlphabeticallyWithFavoritesFirst(items, numbers, isFavs)
+        }
+
         itemTextView.setOnClickListener  {
             val selectedIngredient = getItem(position) as String
             onItemClick(selectedIngredient)
@@ -59,9 +90,8 @@ class IngredientAdapter(
             override fun afterTextChanged(s: Editable?) {
                 // Update the selectedIngredients map with the new value
                 if (s.isNullOrEmpty() || s.toString().toInt() == 0) {
-                    if (selectedIngredients.containsKey(items[position])) {
+                    if (selectedIngredients.containsKey(items[position]))
                         selectedIngredients.remove(items[position])
-                    }
                     numbers[position] = 0
                     rowView!!.setBackgroundColor(Color.TRANSPARENT)
                     highlightedItems.remove(items[position])
@@ -101,4 +131,47 @@ class IngredientAdapter(
 
         return rowView
     }
+
+    fun sortItemsAlphabeticallyWithFavoritesFirst(items: ArrayList<String>, numbers: ArrayList<Int>, isFavs: ArrayList<Boolean>) {
+        // Créez une liste temporaire qui contiendra les éléments triés
+        val sortedList = ArrayList<Pair<String, Pair<Int, Boolean>>>()
+        for (i in items.indices) {
+            val pair = Pair(items[i], Pair(numbers[i], isFavs[i]))
+            sortedList.add(pair)
+        }
+
+        // Trier la liste temporaire en fonction du nom de l'élément (ordre alphabétique)
+        sortedList.sortBy { it.first }
+
+        // Créez une nouvelle liste en ajoutant les éléments triés par ordre alphabétique,
+        // en mettant d'abord les favoris en premier
+        val newList = ArrayList<String>()
+        val newNumbers = ArrayList<Int>()
+        val newIsFavs = ArrayList<Boolean>()
+        for (pair in sortedList) {
+            if (pair.second.second) {
+                // Ajoutez l'élément favori en premier
+                newList.add(0, pair.first)
+                newNumbers.add(0, pair.second.first)
+                newIsFavs.add(0, pair.second.second)
+            } else {
+                // Ajouter l'élément non favori à la fin
+                newList.add(pair.first)
+                newNumbers.add(pair.second.first)
+                newIsFavs.add(pair.second.second)
+            }
+        }
+
+        // Remplacez les anciennes listes par les nouvelles listes triées
+        items.clear()
+        numbers.clear()
+        isFavs.clear()
+        items.addAll(newList)
+        numbers.addAll(newNumbers)
+        isFavs.addAll(newIsFavs)
+        notifyDataSetChanged()
+    }
+
+
+
 }
