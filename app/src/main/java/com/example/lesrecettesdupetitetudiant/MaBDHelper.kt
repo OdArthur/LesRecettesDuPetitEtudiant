@@ -218,29 +218,41 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
     fun displayFridge(listView: ListView) {
         val db = this.readableDatabase
-        val query = "SELECT TBL_INGREDIENT.NAME_INGREDIENT, TBL_FRIGIDAIRE.QUANT_FRIGIDAIRE " +
+        val query = "SELECT TBL_INGREDIENT.NAME_INGREDIENT, TBL_FRIGIDAIRE.QUANT_FRIGIDAIRE, TBL_INGREDIENT.FAV_INGREDIENT " +
                 "FROM TBL_FRIGIDAIRE " +
                 "INNER JOIN TBL_INGREDIENT " +
                 "ON TBL_FRIGIDAIRE.INGREDIENT_ID_FRIGIDAIRE = TBL_INGREDIENT.ID_TABLE_INGREDIENT"
 
+
         val cursor = db.rawQuery(query, null)
         val listItems = ArrayList<String>()
+        val isFavs = ArrayList<Boolean>()
+        val quantIngredients = ArrayList<Int>()
+        var listIsEmpty = false
 
-        if (cursor.count == 0) {
-            listItems.add("Le frigidaire est vide")
-        } else {
-            if (cursor.moveToFirst()) {
-                do {
-                    val ingredientName = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
-                    val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)).toInt()
-                    listItems.add(" quantité : $quantite - Ingredient : $ingredientName")
-                } while (cursor.moveToNext())
-            }
+        if (cursor?.moveToFirst() == true) {
+            do {
+                val ingredientName = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
+                val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)).toInt()
+                val isFav = cursor.getInt(cursor.getColumnIndexOrThrow(FAV_INGREDIENT))
+                listItems.add(ingredientName)
+                quantIngredients.add(quantite)
+                if(isFav == 1)
+                    isFavs.add(true)
+                else
+                    isFavs.add(false)
+            } while (cursor.moveToNext())
+        } else
+        {
+            listIsEmpty = true
+            listItems.add("Votre réfrigérateur est vide")
         }
 
-        val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
-        listView.adapter = adapter
+        val adapter = if (listIsEmpty)
+            NoResultsAdapter(this.context, listItems)
+        else FridgeAdapter(this.context, listItems, quantIngredients, isFavs)
 
+        listView.adapter = adapter
         cursor.close()
     }
 
@@ -287,6 +299,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             } while (cursor.moveToNext())
         } else {
             listIsEmpty = true
+            listItems.add("Aucun résultat trouvé.")
         }
 
 
