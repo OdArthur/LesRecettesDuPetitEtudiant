@@ -62,6 +62,7 @@ class AddIngredientsToFridge : AppCompatActivity() {
                 db.deleteIngredient(ingredientName)
                 if(db.isIngredientUsedInRecipe(ingredientName)) db.deleteRecipesWithIngredient(ingredientName)
                 if(db.isIngredientInCart(ingredientName)) db.deleteIngredientFromCart(ingredientName)
+                callSearchAndDisplayIngredientsDbFunction()
             }
             .setNegativeButton("Annuler") { dialog, _ -> dialog.dismiss() }
         val alert = builder.create()
