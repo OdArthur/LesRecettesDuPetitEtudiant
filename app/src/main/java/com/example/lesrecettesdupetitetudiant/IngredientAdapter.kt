@@ -1,6 +1,6 @@
 package com.example.lesrecettesdupetitetudiant
 
-import android.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.text.Editable
@@ -22,17 +22,17 @@ class IngredientAdapter(
     private val onItemClick: (selectedIngredient: String) -> Unit,
     private val showDeleteConfirmationDialog: (ingredientName: String) -> Unit
 ) : ArrayAdapter<String>(context, R.layout.list_item_ingredient, items) {
+    @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        var rowView = convertView
-        if(rowView == null)
-        {
-            rowView = inflater.inflate(R.layout.list_item_ingredient, parent, false)
-        }
+        val rowView = inflater.inflate(R.layout.list_item_ingredient, parent, false)
 
-        val numberEditText = rowView!!.findViewById<EditText>(R.id.itemClickCountEditText)
-        val itemTextView = rowView!!.findViewById<TextView>(R.id.itemNameTextView)
-        val trashImage = rowView!!.findViewById<ImageView>(R.id.trash)
+        val favoriteToggle = rowView.findViewById<ImageView>(R.id.favorite_toggle)
+        val numberEditText = rowView.findViewById<EditText>(R.id.itemClickCountEditText)
+        val itemTextView = rowView.findViewById<TextView>(R.id.itemNameTextView)
+        val trashImage = rowView.findViewById<ImageView>(R.id.trash)
+
+        sortItemsAlphabeticallyWithFavoritesFirst(items, numbers, isFavs)
 
         val number = if (numbers.size > position) numbers[position] else 0
         numberEditText.setText(number.toString()) // Set the number
@@ -44,7 +44,6 @@ class IngredientAdapter(
             rowView!!.setBackgroundColor(Color.TRANSPARENT)
         }
 
-        val favoriteToggle = rowView!!.findViewById<ImageView>(R.id.favorite_toggle)
         val db = MaBDHelper(context)
 
         if(isFavs[position])
@@ -56,7 +55,6 @@ class IngredientAdapter(
             favoriteToggle.setImageResource(R.drawable.ic_empty_star)
         }
 
-        sortItemsAlphabeticallyWithFavoritesFirst(items, numbers, isFavs)
 
         favoriteToggle.setOnClickListener{
             if(isFavs[position])
@@ -93,12 +91,12 @@ class IngredientAdapter(
                     if (selectedIngredients.containsKey(items[position]))
                         selectedIngredients.remove(items[position])
                     numbers[position] = 0
-                    rowView!!.setBackgroundColor(Color.TRANSPARENT)
+                    rowView.setBackgroundColor(Color.TRANSPARENT)
                     highlightedItems.remove(items[position])
                 } else {
                     selectedIngredients[items[position]] = s.toString().toInt()
                     numbers[position] = s.toString().toInt()
-                    rowView!!.setBackgroundColor(Color.LTGRAY)
+                    rowView.setBackgroundColor(Color.LTGRAY)
                     highlightedItems.add(items[position])
                 }
             }
@@ -125,6 +123,7 @@ class IngredientAdapter(
             }
         }
 
+
         trashImage.setOnClickListener{
             showDeleteConfirmationDialog(getItem(position) as String)
         }
@@ -132,43 +131,32 @@ class IngredientAdapter(
         return rowView
     }
 
-    fun sortItemsAlphabeticallyWithFavoritesFirst(items: ArrayList<String>, numbers: ArrayList<Int>, isFavs: ArrayList<Boolean>) {
-        // Créez une liste temporaire qui contiendra les éléments triés
-        val sortedList = ArrayList<Pair<String, Pair<Int, Boolean>>>()
-        for (i in items.indices) {
-            val pair = Pair(items[i], Pair(numbers[i], isFavs[i]))
-            sortedList.add(pair)
+    private fun sortItemsAlphabeticallyWithFavoritesFirst(items: ArrayList<String>, numbers: ArrayList<Int>, isFavs: ArrayList<Boolean>) {
+        // Créer une liste d'indices triés en fonction du nom de l'élément
+        val sortedIndices = items.indices.sortedBy { items[it] }
+
+        // Créer une liste temporaire de n-uplets triés par ordre alphabétique
+        val temp = sortedIndices.map { Triple(items[it], numbers[it], isFavs[it]) }.sortedBy { it.first }
+
+        // Remplie les listes d'entrée triées en fonction de la liste temporaire
+        for (i in temp.indices) {
+            items[i] = temp[i].first
+            numbers[i] = temp[i].second
+            isFavs[i] = temp[i].third
         }
 
-        // Trier la liste temporaire en fonction du nom de l'élément (ordre alphabétique)
-        sortedList.sortBy { it.first }
-
-        // Créez une nouvelle liste en ajoutant les éléments triés par ordre alphabétique,
-        // en mettant d'abord les favoris en premier
-        val newList = ArrayList<String>()
-        val newNumbers = ArrayList<Int>()
-        val newIsFavs = ArrayList<Boolean>()
-        for (pair in sortedList) {
-            if (pair.second.second) {
-                // Ajoutez l'élément favori en premier
-                newList.add(0, pair.first)
-                newNumbers.add(0, pair.second.first)
-                newIsFavs.add(0, pair.second.second)
-            } else {
-                // Ajouter l'élément non favori à la fin
-                newList.add(pair.first)
-                newNumbers.add(pair.second.first)
-                newIsFavs.add(pair.second.second)
+        // Déplace les éléments favoris au début de la liste
+        var favIndex = 0
+        for (i in 0 until isFavs.size) {
+            if (isFavs[i]) {
+                if (i != favIndex) {
+                    items[favIndex] = items[i].also { items[i] = items[favIndex] }
+                    numbers[favIndex] = numbers[i].also { numbers[i] = numbers[favIndex] }
+                    isFavs[favIndex] = isFavs[i].also { isFavs[i] = isFavs[favIndex] }
+                }
+                favIndex++
             }
         }
-
-        // Remplacez les anciennes listes par les nouvelles listes triées
-        items.clear()
-        numbers.clear()
-        isFavs.clear()
-        items.addAll(newList)
-        numbers.addAll(newNumbers)
-        isFavs.addAll(newIsFavs)
         notifyDataSetChanged()
     }
 
