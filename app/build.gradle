@@ -4,12 +4,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('D:\\Users\\mathis\\Document\\Info mobile\\LesRecettesDuPetitEtudiant\\app\\KeyStore.jks')
-            keyAlias 'Key0'
-        }
-    }
     namespace 'com.example.lesrecettesdupetitetudiant'
     compileSdk 32
 
