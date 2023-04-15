@@ -538,4 +538,35 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         db.close()
     }
 
+    fun removeIngredientsFromFridge(ingredients: HashMap<String, Int>)
+    {
+        val db = this.writableDatabase
+        for((ingredientName, quantity) in ingredients) {
+            val ingredientId = getIngredientIdByName(ingredientName)
+            // Retrieve the current quantity of the ingredient in the fridge
+            val selectQuery =
+                "SELECT $QUANT_FRIGIDAIRE FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = $ingredientId"
+            val cursor = db.rawQuery(selectQuery, null)
+            var currentQuantity = 0
+            if (cursor.moveToFirst()) {
+                currentQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE))
+            }
+            cursor.close()
+
+            // Calculate the new quantity of the ingredient in the fridge
+            val newQuantity = currentQuantity - quantity
+
+            // Update the quantity of the ingredient in the fridge
+            if (newQuantity > 0) {
+                val updateQuery =
+                    "UPDATE $TBL_FRIGIDAIRE SET $QUANT_FRIGIDAIRE = $newQuantity WHERE $INGREDIENT_ID_FRIGIDAIRE = $ingredientId"
+                db.execSQL(updateQuery)
+            } else {
+                val deleteQuery =
+                    "DELETE FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = $ingredientId"
+                db.execSQL(deleteQuery)
+            }
+        }
+    }
+
 }

@@ -1,11 +1,14 @@
 package com.example.lesrecettesdupetitetudiant
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 
@@ -58,6 +61,43 @@ class FridgeAdapter(
                 isFavs[position] = true
             }
             sortItemsAlphabeticallyWithFavoritesFirst(items, numbers, isFavs)
+        }
+
+        trashImage.setOnClickListener{
+            val builder = AlertDialog.Builder(context)
+            var message = "Combien de "
+            message += items[position]
+            message += " voulez-vous retirer du frigo?"
+
+            builder.setMessage(message)
+
+            val editText = EditText(context)
+
+            val filter = InputFilter { source, _, _, _, _, _ ->
+                for (i in source.indices) {
+                    if (!Character.isDigit(source[i])) {
+                        return@InputFilter ""
+                    }
+                }
+                null
+            }
+
+            editText.filters = arrayOf(filter)
+
+            builder.setView(editText)
+
+            builder.setPositiveButton("Retirer") { dialog, which ->
+                numbers[position] -= editText.text.toString().toInt()
+                val ingredientsMap = HashMap<String, Int>()
+                ingredientsMap[items[position]] = numbers[position]
+                db.removeIngredientsFromFridge(ingredientsMap)
+                notifyDataSetChanged()
+            }
+            builder.setNegativeButton("Annuler", null)
+
+// Créer et afficher la boîte de dialogue
+            val dialog = builder.create()
+            dialog.show()
         }
 
 
