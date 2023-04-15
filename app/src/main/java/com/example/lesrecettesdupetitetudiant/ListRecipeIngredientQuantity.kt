@@ -63,7 +63,8 @@ class ListRecipeIngredientQuantity : AppCompatActivity() {
         binding.BTNAddRecipe.setOnClickListener{
             view->
             val IngredientQuant = adapter.GetQuant()
-            db.addRecipe(RecipeTitle, RecipeDescription)
+            Log.d("test DEBUG ", IngredientQuant.toString())
+            db.addRecipe(RecipeTitle, RecipeDescription, IngredientQuant)
             intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }

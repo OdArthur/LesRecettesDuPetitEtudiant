@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import kotlinx.coroutines.delay
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -92,7 +93,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         onCreate(db)
     }
 
-    fun addRecipe(title:String, Description:String)
+    fun addRecipe(title:String, Description:String, ListIngredient:MutableList<IngredientQuantityData>)
     {
         val db:SQLiteDatabase = this.writableDatabase
         val cv:ContentValues = ContentValues()
@@ -106,7 +107,21 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         }
         else
         {
-            Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
+            val cursor = db.rawQuery("SELECT $ID_TABLE_RECETTE FROM $TBL_RECETTE ORDER BY $ID_TABLE_RECETTE DESC LIMIT 1", null)
+            cursor.moveToFirst()
+            for((ingredient, quantity) in ListIngredient )
+            {
+                if(ingredient != "0")
+                {
+                    val icv:ContentValues = ContentValues()
+                    icv.put(RECETTE_ID_INGREDIENT_REQUIS, cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_RECETTE)))
+                    icv.put(INGREDIENT_ID_INGREDIENT_REQUIS, getIngredientIdByName(ingredient))
+                    icv.put(QUANT_INGREDIENT_REQUIS, quantity)
+
+                    db.insert(TBL_INGREDIENT_REQUIS, null, icv)
+                }
+            }
+            //Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -161,33 +176,72 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         db.update(TBL_RECETTE, cv, "$ID_TABLE_RECETTE = $RecipeID",null)
     }
 
-    fun searchAndDisplayRecipe(listView: ListView, searchQuery: String?, IsFav:Boolean) {
+    fun searchAndDisplayRecipe(listView: ListView, searchQuery: String?, IsFav:Boolean, isPossible:Boolean) {
         val db = this.readableDatabase
         val listItems = ArrayList<String>()
 
-        var cursor:Cursor
+        var cursorFinal:Cursor
         if(IsFav)
         {
-            cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%' AND $FAV_RECETTE = 1", null)
+            cursorFinal = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%' AND $FAV_RECETTE = 1", null)
         }
         else
         {
-            cursor = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%'", null)
+            cursorFinal = db.rawQuery("SELECT * FROM $TBL_RECETTE WHERE $TITLE_RECETTE LIKE '%$searchQuery%'", null)
+        }
+
+        var cursor:Cursor
+        if(isPossible)
+        {
+            Log.d("RECIPE DEBUG ", "IT IS POSSIBLE")
+            cursor = db.rawQuery("SELECT $RECETTE_ID_INGREDIENT_REQUIS FROM $TBL_INGREDIENT_REQUIS JOIN $TBL_INGREDIENT ON $TBL_INGREDIENT_REQUIS.$INGREDIENT_ID_INGREDIENT_REQUIS = $TBL_INGREDIENT.$ID_TABLE_INGREDIENT JOIN $TBL_FRIGIDAIRE ON $TBL_INGREDIENT.$ID_TABLE_INGREDIENT = $TBL_FRIGIDAIRE.$INGREDIENT_ID_FRIGIDAIRE WHERE $TBL_INGREDIENT_REQUIS.$QUANT_INGREDIENT_REQUIS > $TBL_FRIGIDAIRE.$QUANT_FRIGIDAIRE", null)
+        }
+        else
+        {
+            cursor = db.rawQuery("", null)
         }
 
 
-        if (cursor?.moveToFirst() == true) {
+        if (cursorFinal?.moveToFirst() == true) {
             do {
-                val nameRecipe = cursor.getString(cursor.getColumnIndexOrThrow(TITLE_RECETTE))
-                listItems.add(nameRecipe)
-            } while (cursor.moveToNext())
+                if(isPossible)
+                {
+                    if (cursor.moveToFirst())
+                    {
+                        Log.d("RECIPE DEBUG : ", "MOVE TO FIRST")
+                        var RecipePossible = true
+                        do {
+                            if(cursor.getInt(cursor.getColumnIndexOrThrow(RECETTE_ID_INGREDIENT_REQUIS)) == cursorFinal.getInt(cursorFinal.getColumnIndexOrThrow(ID_TABLE_RECETTE)))
+                            {
+                                RecipePossible=false
+                                Log.d("RECIPE DEBUG ", "RECIPE IS NOT POSSIBLE" + cursorFinal.getString(cursorFinal.getColumnIndexOrThrow(TITLE_RECETTE)))
+                            }
+                        }while(RecipePossible && cursor.moveToNext())
+                        if (RecipePossible)
+                        {
+                            val nameRecipe = cursorFinal.getString(cursorFinal.getColumnIndexOrThrow(TITLE_RECETTE))
+                            listItems.add(nameRecipe)
+                        }
+                    }
+                    else
+                    {
+                        val nameRecipe = cursorFinal.getString(cursorFinal.getColumnIndexOrThrow(TITLE_RECETTE))
+                        listItems.add(nameRecipe)
+                    }
+                }
+                else
+                {
+                    val nameRecipe = cursorFinal.getString(cursorFinal.getColumnIndexOrThrow(TITLE_RECETTE))
+                    listItems.add(nameRecipe)
+                }
+            } while (cursorFinal.moveToNext())
         } else {
             listItems.add("Aucun résultat trouvé.")
         }
 
         val adapter = ArrayAdapter(this.context, R.layout.simple_list_item_1, listItems)
         listView.adapter = adapter
-        cursor.close()
+        cursorFinal.close()
     }
 
     fun deleteRecipe(RecipeID: Int)
@@ -235,12 +289,15 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 val ingredientName = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
                 val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)).toInt()
                 val isFav = cursor.getInt(cursor.getColumnIndexOrThrow(FAV_INGREDIENT))
-                listItems.add(ingredientName)
-                quantIngredients.add(quantite)
-                if(isFav == 1)
-                    isFavs.add(true)
-                else
-                    isFavs.add(false)
+                if(quantite != 0)
+                {
+                    listItems.add(ingredientName)
+                    quantIngredients.add(quantite)
+                    if(isFav == 1)
+                        isFavs.add(true)
+                    else
+                        isFavs.add(false)
+                }
             } while (cursor.moveToNext())
         } else
         {
@@ -320,8 +377,26 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val contentValues = ContentValues()
         contentValues.put(NAME_INGREDIENT, name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
             Locale.getDefault()) else it.toString() })
-        db.insert(TBL_INGREDIENT, null, contentValues)
+        val result = db.insert(TBL_INGREDIENT, null, contentValues)
+        if(result.toInt() != -1) {
+            val cursor = db.rawQuery("SELECT $ID_TABLE_INGREDIENT FROM $TBL_INGREDIENT ORDER BY $ID_TABLE_INGREDIENT DESC LIMIT 1", null)
+            if(cursor.moveToFirst())
+            {
+                initializeIngredientInFridge(cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_INGREDIENT)))
+            }
+        }
     }
+
+    fun initializeIngredientInFridge(ingredientID: Int)
+    {
+        val db = writableDatabase
+        val cv:ContentValues = ContentValues().apply {
+            put(INGREDIENT_ID_FRIGIDAIRE, ingredientID)
+            put(QUANT_FRIGIDAIRE, 0)
+        }
+        db.insert(TBL_FRIGIDAIRE, null, cv)
+    }
+
     fun addIngredientsToFridge(ingredients: HashMap<String, Int>) {
         val db = writableDatabase
         for ((ingredient, quantity) in ingredients) {

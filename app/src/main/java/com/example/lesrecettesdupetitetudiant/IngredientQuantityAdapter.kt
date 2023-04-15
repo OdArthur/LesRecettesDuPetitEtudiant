@@ -1,6 +1,9 @@
 package com.example.lesrecettesdupetitetudiant
 
 import android.content.Context
+import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -49,21 +52,25 @@ class IngredientQuantityAdapter(
 
         IngredientNameText.text = items[position] // Set the item text
 
-        IngredientQuantity.setOnFocusChangeListener{
-            _, hasFocus->
-            if(!hasFocus)
-            {
-                val positionInListView = IngredientQuantity.tag as Int
-                if(IngredientQuantity.text.toString() == "")
+        IngredientQuantity.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString() == "")
                 {
-                    EditableQuantity[positionInListView] = IngredientQuantityData(items[positionInListView], -1)
+                    EditableQuantity[position] = IngredientQuantityData(items[position], -1)
                 }
                 else
                 {
-                    EditableQuantity[positionInListView] = IngredientQuantityData(items[positionInListView], IngredientQuantity.text.toString().toInt())
+                    EditableQuantity[position] = IngredientQuantityData(items[position], s.toString().toInt())
                 }
             }
-        }
+        })
 
         return convertView
     }

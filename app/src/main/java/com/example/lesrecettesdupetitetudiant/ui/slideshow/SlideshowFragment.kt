@@ -46,12 +46,16 @@ class SlideshowFragment : Fragment() {
         }
 
         binding.switchFav.setOnCheckedChangeListener { _, isChecked ->
-            db.searchAndDisplayRecipe(binding.ListRecipe, binding.searchRecip.text.toString(), isChecked)
+            db.searchAndDisplayRecipe(binding.ListRecipe, binding.searchRecip.text.toString(), isChecked, binding.switchPossible.isChecked)
+        }
+
+        binding.switchPossible.setOnCheckedChangeListener { _, isChecked ->
+            db.searchAndDisplayRecipe(binding.ListRecipe, binding.searchRecip.text.toString(), binding.switchFav.isChecked, isChecked)
         }
 
         binding.searchRecip.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                db.searchAndDisplayRecipe(binding.ListRecipe, s.toString(), binding.switchFav.isChecked)
+                db.searchAndDisplayRecipe(binding.ListRecipe, s.toString(), binding.switchFav.isChecked, binding.switchPossible.isChecked)
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
