@@ -454,18 +454,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 "WHERE $NAME_INGREDIENT = '$IngredientName')"
         Log.d("TAG", "query: $query")
         val cursor = db.rawQuery(query, null)
-        if (cursor != null && cursor.count > 0) {
-            val idIndex = cursor.getColumnIndex(ID_TABLE_INGREDIENT)
-            val nameIndex = cursor.getColumnIndex(NAME_INGREDIENT)
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getInt(idIndex)
-                val name = cursor.getString(nameIndex)
-                Log.d("TAG", "id: $id, name: $name")
-            }
-        } else {
-            Log.d("TAG", "Cursor is empty or null")
-        }
 
         val result = cursor.count > 0
         cursor.close()
@@ -481,18 +469,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 "WHERE $NAME_INGREDIENT = '$ingredientName')"
         Log.d("TAG", "query: $query")
         val cursor = db.rawQuery(query, null)
-        if (cursor != null && cursor.count > 0) {
-            val idIndex = cursor.getColumnIndex(ID_TABLE_INGREDIENT)
-            val nameIndex = cursor.getColumnIndex(NAME_INGREDIENT)
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getInt(idIndex)
-                val name = cursor.getString(nameIndex)
-                Log.d("TAG", "id: $id, name: $name")
-            }
-        } else {
-            Log.d("TAG", "Cursor is empty or null")
-        }
 
         val result = cursor.count > 0
         cursor.close()
@@ -507,9 +483,9 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
     fun deleteRecipesWithIngredient(ingredientName: String) {
         val db = this.writableDatabase
-        val ingredientId = getIngredientIdByName(ingredientName)
+        var ingredientId = getIngredientIdByName(ingredientName)
 
-        // Supprime toutes les recettes qui contiennent l'ingrédient
+        Log.d("TAG", "Ingredient id to delete : " + ingredientId.toString() )
         db.delete(TBL_INGREDIENT_REQUIS, "$INGREDIENT_ID_INGREDIENT_REQUIS = ?", arrayOf(ingredientId.toString()))
     }
 

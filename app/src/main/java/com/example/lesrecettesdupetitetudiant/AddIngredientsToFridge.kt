@@ -47,21 +47,21 @@ class AddIngredientsToFridge : AppCompatActivity() {
         var message = "Voulez-vous vraiment supprimer cet ingrédient ?"
         if(db.isIngredientUsedInRecipe(ingredientName))
         {
-            message+= " Cette ingrédient est utiliser dans une de vos recettes. Toutes les recettes utilisant cette ingrédient seront supprimer"
+            message+= "\nCette ingrédient est utiliser dans l'une de vos recettes."
             Log.d("TAG", "Ingrédient déjà utliser dans une recette")
         }
         if(db.isIngredientInCart(ingredientName))
         {
-            message+= "Cette ingrédient est utiliser dans votre panier, il sera supprimer de votre panier."
+            message+= "\nCette ingrédient est utiliser dans votre panier, il sera supprimer de votre panier."
             Log.d("TAG", "Ingrédient déjà utliser dans le panier")
         }
 
         builder.setMessage(message)
             .setCancelable(false)
             .setPositiveButton("Supprimer") { _, _ ->
-                db.deleteIngredient(ingredientName)
                 if(db.isIngredientUsedInRecipe(ingredientName)) db.deleteRecipesWithIngredient(ingredientName)
                 if(db.isIngredientInCart(ingredientName)) db.deleteIngredientFromCart(ingredientName)
+                db.deleteIngredient(ingredientName)
                 callSearchAndDisplayIngredientsDbFunction()
             }
             .setNegativeButton("Annuler") { dialog, _ -> dialog.dismiss() }
