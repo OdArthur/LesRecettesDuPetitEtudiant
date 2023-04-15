@@ -87,9 +87,13 @@ class FridgeAdapter(
             builder.setView(editText)
 
             builder.setPositiveButton("Retirer") { dialog, which ->
-                numbers[position] -= editText.text.toString().toInt()
+                var decrementNumber = editText.text.toString().toInt()
+                numbers[position] -= decrementNumber
+                if (numbers[position] < 0)
+                    numbers[position] = 0
+
                 val ingredientsMap = HashMap<String, Int>()
-                ingredientsMap[items[position]] = numbers[position]
+                ingredientsMap[items[position]] = decrementNumber
                 db.removeIngredientsFromFridge(ingredientsMap)
                 notifyDataSetChanged()
             }
