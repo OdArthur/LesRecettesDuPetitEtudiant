@@ -578,6 +578,28 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         listView.adapter = adapter
     }
 
+    fun GetRequiredIngredientForRecipe(RecipeID: Int):ArrayList<String>
+    {
+        val db = this.readableDatabase
+        val listItems = ArrayList<String>()
+
+        val cursor = db.rawQuery("SELECT * FROM $TBL_INGREDIENT_REQUIS WHERE $RECETTE_ID_INGREDIENT_REQUIS = $RecipeID", null)
+
+        if (cursor.moveToFirst())
+        {
+            do {
+                val Icursor = db.rawQuery("SELECT $NAME_INGREDIENT FROM $TBL_INGREDIENT WHERE $ID_TABLE_INGREDIENT = ${cursor.getString(cursor.getColumnIndexOrThrow(INGREDIENT_ID_INGREDIENT_REQUIS))}", null)
+                if (Icursor.moveToFirst())
+                {
+                    do {
+                        listItems.add(Icursor.getString(Icursor.getColumnIndexOrThrow(NAME_INGREDIENT)))
+                    }while (Icursor.moveToNext())
+                }
+            }while (cursor.moveToNext())
+        }
+        return listItems
+    }
+
     fun RemoveIngredientForRecipe(RecipeID:Int)
     {
         val db = this.writableDatabase
