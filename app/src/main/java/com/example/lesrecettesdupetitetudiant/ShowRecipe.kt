@@ -46,6 +46,12 @@ class ShowRecipe : AppCompatActivity() {
                 intent.putExtra("ID", RecipeID)
                 startActivity(intent)
             }
+
+            binding.editRecipeIngredient.setOnClickListener { view ->
+                intent = Intent(this, ShowRequiredIgredient::class.java)
+                intent.putExtra("ID", RecipeID)
+                startActivity(intent)
+            }
         }
     }
 
