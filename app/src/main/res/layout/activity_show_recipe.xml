@@ -33,29 +33,47 @@
         android:layout_marginBottom="8dp"
         android:scrollbars="vertical"
         android:text="Description"
-        app:layout_constraintBottom_toTopOf="@+id/edit_recipe"
+        app:layout_constraintBottom_toTopOf="@+id/edit_recipeIngredient"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RecipeTitle" />
 
     <Button
         android:id="@+id/edit_recipe"
-        android:layout_width="wrap_content"
+        android:layout_width="140dp"
         android:layout_height="48dp"
         android:layout_marginBottom="8dp"
         android:text="Modifier"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/RecipeDescription" />
 
-    <Switch
-        android:id="@+id/fav_recette"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/edit_recipeIngredient"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Ingrédients"
+        app:layout_constraintBottom_toTopOf="@+id/edit_recipe"
+        app:layout_constraintStart_toStartOf="@+id/RecipeDescription" />
+
+    <Button
+        android:id="@+id/BTN_recipeLink"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Favoris"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Lien"
+        app:layout_constraintBottom_toTopOf="@+id/fav_recette"
         app:layout_constraintEnd_toEndOf="@+id/RecipeDescription"
         app:layout_constraintTop_toBottomOf="@+id/RecipeDescription" />
+
+    <Switch
+        android:id="@+id/fav_recette"
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="8dp"
+        android:text="Favoris"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/RecipeDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

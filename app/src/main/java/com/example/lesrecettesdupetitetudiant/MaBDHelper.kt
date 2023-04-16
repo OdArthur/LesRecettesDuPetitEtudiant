@@ -109,18 +109,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         {
             val cursor = db.rawQuery("SELECT $ID_TABLE_RECETTE FROM $TBL_RECETTE ORDER BY $ID_TABLE_RECETTE DESC LIMIT 1", null)
             cursor.moveToFirst()
-            for((ingredient, quantity) in ListIngredient )
-            {
-                if(ingredient != "0")
-                {
-                    val icv:ContentValues = ContentValues()
-                    icv.put(RECETTE_ID_INGREDIENT_REQUIS, cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_RECETTE)))
-                    icv.put(INGREDIENT_ID_INGREDIENT_REQUIS, getIngredientIdByName(ingredient))
-                    icv.put(QUANT_INGREDIENT_REQUIS, quantity)
-
-                    db.insert(TBL_INGREDIENT_REQUIS, null, icv)
-                }
-            }
+            AddIngredientForRecipe(cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_RECETTE)), ListIngredient)
             //Toast.makeText(context, "adding a recipe have succeded", Toast.LENGTH_SHORT).show()
         }
     }
@@ -248,6 +237,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     {
         val db = this.writableDatabase
         db.execSQL("DELETE FROM $TBL_RECETTE WHERE $ID_TABLE_RECETTE = $RecipeID")
+        RemoveIngredientForRecipe(RecipeID)
         Toast.makeText(context, "Deleted Recipe",Toast.LENGTH_SHORT).show()
     }
 
@@ -543,6 +533,29 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 db.execSQL(deleteQuery)
             }
         }
+    }
+
+    fun AddIngredientForRecipe(RecipeID:Int, Ingredients:MutableList<IngredientQuantityData>)
+    {
+        val db = this.writableDatabase
+        for((ingredient, quantity) in Ingredients )
+        {
+            if(ingredient != "0")
+            {
+                val icv:ContentValues = ContentValues()
+                icv.put(RECETTE_ID_INGREDIENT_REQUIS, RecipeID)
+                icv.put(INGREDIENT_ID_INGREDIENT_REQUIS, getIngredientIdByName(ingredient))
+                icv.put(QUANT_INGREDIENT_REQUIS, quantity)
+
+                db.insert(TBL_INGREDIENT_REQUIS, null, icv)
+            }
+        }
+    }
+
+    fun RemoveIngredientForRecipe(RecipeID:Int)
+    {
+        val db = this.writableDatabase
+        db.execSQL("DELETE FROM $TBL_INGREDIENT_REQUIS WHERE $RECETTE_ID_INGREDIENT_REQUIS = $RecipeID")
     }
 
 }
