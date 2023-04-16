@@ -15,20 +15,8 @@ class EditRequiredIngredientQuantity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_recipe_ingredient_quantity)
 
-        var RecipeTitle = intent.getStringExtra("RecipeTitle")
-        var RecipeDescription = intent.getStringExtra("RecipeDescription")
         val Ingredients = intent.getStringArrayExtra("Ingredients")
         var RecipeID = intent.getIntExtra("ID", -1)
-
-        if(RecipeTitle == null)
-        {
-            RecipeTitle = "error"
-        }
-
-        if(RecipeDescription == null)
-        {
-            RecipeDescription = "error"
-        }
 
         binding = ActivityListRecipeIngredientQuantityBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -64,8 +52,8 @@ class EditRequiredIngredientQuantity : AppCompatActivity() {
         binding.BTNAddRecipe.setOnClickListener{
             view->
             val IngredientQuant = adapter.GetQuant()
-            Log.d("test DEBUG ", IngredientQuant.toString())
-            db.addRecipe(RecipeTitle, RecipeDescription, IngredientQuant)
+            db.RemoveIngredientForRecipe(RecipeID)
+            db.AddIngredientForRecipe(RecipeID,IngredientQuant)
             intent = Intent(this, ShowRecipe::class.java)
             intent.putExtra("ID", RecipeID)
             startActivity(intent)

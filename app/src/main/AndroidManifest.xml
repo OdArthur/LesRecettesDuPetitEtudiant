@@ -13,6 +13,20 @@
         android:theme="@style/Theme.LesRecettesDuPetitEtudiant"
         tools:targetApi="31">
         <activity
+            android:name=".EditRequiredIngredient"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".EditRequiredIngredientQuantity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".ShowRequiredIgredient"
             android:exported="false">
             <meta-data
