@@ -32,6 +32,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         private const val TITLE_RECETTE = "title_recette"
         private const val DESC_RECETTE = "desc_recette"
         private const val FAV_RECETTE = "fav_recette"
+        private const val LINK_RECETTE = "link_recette"
 
         private const val TBL_PANIER = "tbl_panier"
         private const val INGREDIENT_ID_PANIER = "ingredient_id_panier"
@@ -69,7 +70,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
 
         val createTblRecette=("CREATE TABLE " + TBL_RECETTE + " (" + ID_TABLE_RECETTE + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TITLE_RECETTE + " VARCHAR(130), "
-                + DESC_RECETTE + " TEXT, " + FAV_RECETTE + " INTEGER NOT NULL DEFAULT 0);")
+                + DESC_RECETTE + " TEXT, " + FAV_RECETTE + " INTEGER NOT NULL DEFAULT 0, " + LINK_RECETTE + " VARCHAR(255));")
         db.execSQL(createTblRecette)
 
 
@@ -93,13 +94,14 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         onCreate(db)
     }
 
-    fun addRecipe(title:String, Description:String, ListIngredient:MutableList<IngredientQuantityData>)
+    fun addRecipe(title:String, Description:String, ListIngredient:MutableList<IngredientQuantityData>, link:String)
     {
         val db:SQLiteDatabase = this.writableDatabase
         val cv:ContentValues = ContentValues()
 
         cv.put(TITLE_RECETTE, title)
         cv.put(DESC_RECETTE, Description)
+        cv.put(LINK_RECETTE, link)
         val result = db.insert(TBL_RECETTE, null, cv)
         if (result.toInt() == -1)
         {
@@ -145,13 +147,14 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
     }
 
-    fun EditRecipe(RecipeTitle:String, RecipeDescription:String, RecipeID:Int)
+    fun EditRecipe(RecipeTitle:String, RecipeDescription:String, RecipeID:Int, RecipeLink: String)
     {
         val db = this.writableDatabase
 
         var cv:ContentValues = ContentValues()
         cv.put(TITLE_RECETTE, RecipeTitle)
         cv.put(DESC_RECETTE, RecipeDescription)
+        cv.put(LINK_RECETTE, RecipeLink)
 
         db.update(TBL_RECETTE, cv, "$ID_TABLE_RECETTE = $RecipeID", null)
     }

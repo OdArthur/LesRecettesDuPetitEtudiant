@@ -19,6 +19,7 @@ class AddIngredientToRecipe : AppCompatActivity() {
 
         val RecipeTitle = intent.getStringExtra("RecipeTitle")!!
         val RecipeDescription = intent.getStringExtra("RecipeDescription")!!
+        val RecipeLink = intent.getStringExtra("RecipeLink")!!
 
         binding = ActivityAddIngredientToRecipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,6 +49,7 @@ class AddIngredientToRecipe : AppCompatActivity() {
             intent = Intent(this, ListRecipeIngredientQuantity::class.java)
             intent.putExtra("RecipeTitle", RecipeTitle)
             intent.putExtra("RecipeDescription", RecipeDescription)
+            intent.putExtra("RecipeLink", RecipeLink)
             intent.putExtra("Ingredients", selectedIngredients)
             startActivity(intent)
         }

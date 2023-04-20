@@ -18,6 +18,7 @@ class ListRecipeIngredientQuantity : AppCompatActivity() {
         var RecipeTitle = intent.getStringExtra("RecipeTitle")
         var RecipeDescription = intent.getStringExtra("RecipeDescription")
         val Ingredients = intent.getStringArrayExtra("Ingredients")
+        val RecipeLink = intent.getStringExtra("RecipeLink")!!
 
         if(RecipeTitle == null)
         {
@@ -64,7 +65,7 @@ class ListRecipeIngredientQuantity : AppCompatActivity() {
             view->
             val IngredientQuant = adapter.GetQuant()
             Log.d("test DEBUG ", IngredientQuant.toString())
-            db.addRecipe(RecipeTitle, RecipeDescription, IngredientQuant)
+            db.addRecipe(RecipeTitle, RecipeDescription, IngredientQuant, RecipeLink)
             intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }

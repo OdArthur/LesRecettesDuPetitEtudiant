@@ -1,11 +1,17 @@
 package com.example.lesrecettesdupetitetudiant
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.util.Patterns
+import android.widget.Toast
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityShowRecipeBinding
+import java.util.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 class ShowRecipe : AppCompatActivity() {
@@ -51,6 +57,25 @@ class ShowRecipe : AppCompatActivity() {
                 intent = Intent(this, ShowRequiredIgredient::class.java)
                 intent.putExtra("ID", RecipeID)
                 startActivity(intent)
+            }
+
+            binding.BTNRecipeLink.setOnClickListener { view ->
+                if (cursor.getString(cursor.getColumnIndexOrThrow("link_recette")) == "")
+                {
+                    Toast.makeText(this, "Aucun lien n'a été renseigné.", Toast.LENGTH_SHORT).show()
+                }
+                else
+                {
+                    var url = cursor.getString(cursor.getColumnIndexOrThrow("link_recette"))
+                    //TODO : ouvrir le lien dans le navigateur
+                    if(!url.startsWith("http://") || !url.startsWith("https://"))
+                    {
+                        url = "http://" + url
+                    }
+                    val browserIntent : Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
+                    //Log.d("DEBUG ", cursor.getString(cursor.getColumnIndexOrThrow("link_recette")))
+                }
             }
         }
     }

@@ -3,8 +3,14 @@ package com.example.lesrecettesdupetitetudiant
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityEditRecipeBinding
+import java.util.*
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class EditRecipe : AppCompatActivity() {
 
@@ -33,13 +39,39 @@ class EditRecipe : AppCompatActivity() {
             cursor.moveToFirst()
             binding.recipeTitle.setText(cursor.getString(cursor.getColumnIndexOrThrow("title_recette")))
             binding.recipeDescription.setText(cursor.getString(cursor.getColumnIndexOrThrow("desc_recette")))
+            binding.recipeLink.setText(cursor.getString(cursor.getColumnIndexOrThrow("link_recette")))
         }
 
         binding.BTNEdit.setOnClickListener{
             view->
-            db.EditRecipe(binding.recipeTitle.text.toString(), binding.recipeDescription.text.toString(), RecipeID)
-            finish()
+            if(binding.recipeLink.text.toString() == "" || isURL(binding.recipeLink.text.toString()))
+            {
+                db.EditRecipe(binding.recipeTitle.text.toString(), binding.recipeDescription.text.toString(), RecipeID, binding.recipeLink.text.toString())
+                finish()
+            }
+            else
+            {
+                binding.recipeLinkLayout.isErrorEnabled = true
+                binding.recipeLinkLayout.error = "Mauvais lien"
+            }
         }
+
+        binding.recipeLink.addTextChangedListener (object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if(binding.recipeLinkLayout.isErrorEnabled)
+                {
+                    binding.recipeLinkLayout.isErrorEnabled = false
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                //TODO("Not yet implemented")
+            }
+        })
 
         binding.BTNDelete.setOnClickListener{
             db.deleteRecipe(RecipeID)
@@ -48,5 +80,11 @@ class EditRecipe : AppCompatActivity() {
             intent.putExtra("Return", "Recipe")
             startActivity(intent)
         }
+    }
+
+    fun isURL(url: String): Boolean {
+        val p: Pattern = Patterns.WEB_URL
+        val m: Matcher = p.matcher(url.lowercase(Locale.getDefault()))
+        return m.matches()
     }
 }
