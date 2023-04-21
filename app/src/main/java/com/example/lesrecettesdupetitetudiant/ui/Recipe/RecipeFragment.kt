@@ -1,4 +1,4 @@
-package com.example.lesrecettesdupetitetudiant.ui.slideshow
+package com.example.lesrecettesdupetitetudiant.ui.Recipe
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,11 +10,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.lesrecettesdupetitetudiant.MaBDHelper
 import com.example.lesrecettesdupetitetudiant.ShowRecipe
-import com.example.lesrecettesdupetitetudiant.databinding.FragmentSlideshowBinding
+import com.example.lesrecettesdupetitetudiant.databinding.FragmentRecipeBinding
 
-class SlideshowFragment : Fragment() {
+class RecipeFragment : Fragment() {
 
-    private var _binding: FragmentSlideshowBinding? = null
+    private var _binding: FragmentRecipeBinding? = null
 
     private lateinit var db:MaBDHelper
 
@@ -26,7 +26,7 @@ class SlideshowFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
+        _binding = FragmentRecipeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         db = MaBDHelper(binding.root.context)
