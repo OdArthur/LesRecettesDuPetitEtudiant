@@ -67,8 +67,7 @@ class ShowRecipe : AppCompatActivity() {
                 else
                 {
                     var url = cursor.getString(cursor.getColumnIndexOrThrow("link_recette"))
-                    //TODO : ouvrir le lien dans le navigateur
-                    if(!url.startsWith("http://") || !url.startsWith("https://"))
+                    if(!url.startsWith("http://") && !url.startsWith("https://"))
                     {
                         url = "http://" + url
                     }
