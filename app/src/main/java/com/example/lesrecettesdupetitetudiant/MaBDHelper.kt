@@ -243,22 +243,60 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         RemoveIngredientForRecipe(RecipeID)
     }
 
-    fun addToBasket(name:String, unit:String, quantity:Int)
-    {
-        val db:SQLiteDatabase = this.writableDatabase
-        val cv:ContentValues = ContentValues()
-
-        //cv.put(INGREDIENT_ID_PANIER, unit)
-        cv.put(QUANT_PANIER, quantity)
-
-        val result = db.insert(TBL_PANIER, null, cv)
-        if (result.toInt() == -1)
-        {
-            Toast.makeText(context, "adding to basket have failed", Toast.LENGTH_SHORT).show()
+    fun addIngredientsToBasket(ingredients: HashMap<String, Int>) {
+        val db = writableDatabase
+        for ((ingredient, quantity) in ingredients) {
+            val id = getIngredientIdByName(ingredient)
+            if (id != -1) {
+                val currentQuantity = getIngredientQuantityFromFridge(id)
+                if (currentQuantity != -1) {
+                    val newQuantity = currentQuantity + quantity
+                    val values = ContentValues().apply {
+                        put(INGREDIENT_ID_PANIER, id)
+                        put(QUANT_PANIER, newQuantity)
+                    }
+                    db.update(TBL_PANIER, values, "$INGREDIENT_ID_PANIER=?", arrayOf(id.toString()))
+                } else {
+                    val values = ContentValues().apply {
+                        put(INGREDIENT_ID_PANIER, id)
+                        put(QUANT_PANIER, quantity)
+                    }
+                    db.insert(TBL_PANIER, null, values)
+                }
+            } else {
+                Log.e("TAG", "Ingredient $ingredient not found")
+            }
         }
-        else
-        {
-            Toast.makeText(context, "adding to basket have succeded", Toast.LENGTH_SHORT).show()
+    }
+
+    fun removeIngredientsFromBasket(ingredients: HashMap<String, Int>)
+    {
+        val db = this.writableDatabase
+        for((ingredientName, quantity) in ingredients) {
+            val ingredientId = getIngredientIdByName(ingredientName)
+            // Retrieve the current quantity of the ingredient in the fridge
+            val selectQuery =
+                "SELECT $QUANT_PANIER FROM $TBL_PANIER WHERE $INGREDIENT_ID_PANIER = $ingredientId"
+            val cursor = db.rawQuery(selectQuery, null)
+            var currentQuantity = 0
+            if (cursor.moveToFirst()) {
+                currentQuantity = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_PANIER))
+            }
+            cursor.close()
+
+            // Calculate the new quantity of the ingredient in the fridge
+            val newQuantity = currentQuantity - quantity
+
+            // Update the quantity of the ingredient in the fridge
+            if (newQuantity > 0) {
+                val updateQuery =
+                    "UPDATE $TBL_PANIER SET $QUANT_PANIER = $newQuantity WHERE $INGREDIENT_ID_PANIER = $ingredientId"
+                db.execSQL(updateQuery)
+            } else {
+                val deleteQuery =
+                    "DELETE FROM $TBL_PANIER WHERE $INGREDIENT_ID_PANIER = $ingredientId"
+                db.execSQL(deleteQuery)
+            }
         }
     }
 
@@ -628,7 +666,5 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                 db.update(TBL_FRIGIDAIRE, cv, "$ID_TABLE_FRIGIDAIRE = ${cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_FRIGIDAIRE))}", null)
             }while (Rcursor.moveToNext())
         }
-
     }
-
 }
