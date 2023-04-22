@@ -248,7 +248,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         for ((ingredient, quantity) in ingredients) {
             val id = getIngredientIdByName(ingredient)
             if (id != -1) {
-                val currentQuantity = getIngredientQuantityFromFridge(id)
+                val currentQuantity = getIngredientQuantityFromBasket(id)
                 if (currentQuantity != -1) {
                     val newQuantity = currentQuantity + quantity
                     val values = ContentValues().apply {
@@ -256,17 +256,30 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
                         put(QUANT_PANIER, newQuantity)
                     }
                     db.update(TBL_PANIER, values, "$INGREDIENT_ID_PANIER=?", arrayOf(id.toString()))
+                    Log.e("PANIER", "UPDATED")
                 } else {
                     val values = ContentValues().apply {
                         put(INGREDIENT_ID_PANIER, id)
                         put(QUANT_PANIER, quantity)
                     }
                     db.insert(TBL_PANIER, null, values)
+                    Log.e("PANIER", "INSTERTED")
                 }
             } else {
                 Log.e("TAG", "Ingredient $ingredient not found")
             }
         }
+    }
+
+    private fun getIngredientQuantityFromBasket(ingredientId: Int): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT $QUANT_PANIER FROM $TBL_PANIER WHERE $INGREDIENT_ID_PANIER = $ingredientId", null)
+        var quantity = -1
+        if (cursor.moveToFirst()) {
+            quantity = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE))
+        }
+        cursor.close()
+        return quantity
     }
 
     fun removeIngredientsFromBasket(ingredients: HashMap<String, Int>)
