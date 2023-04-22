@@ -1,12 +1,15 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
+import android.widget.EditText
 import com.example.lesrecettesdupetitetudiant.databinding.ActivityEditRecipeBinding
 import java.util.*
 import java.util.regex.Matcher
@@ -74,11 +77,23 @@ class EditRecipe : AppCompatActivity() {
         })
 
         binding.BTNDelete.setOnClickListener{
-            db.deleteRecipe(RecipeID)
-            //TODO go to main menu
-            intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("Return", "Recipe")
-            startActivity(intent)
+            val builder = AlertDialog.Builder(this)
+            var message = "Etes-vous certain de vouloir supprimer la recette?"
+
+            builder.setMessage(message)
+
+            builder.setPositiveButton("Supprimer") { _, _ ->
+                db.deleteRecipe(RecipeID)
+                //TODO go to main menu
+                intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("Return", "Recipe")
+                startActivity(intent)
+            }
+            builder.setNegativeButton("Annuler", null)
+
+// Créer et afficher la boîte de dialogue
+            val dialog = builder.create()
+            dialog.show()
         }
     }
 

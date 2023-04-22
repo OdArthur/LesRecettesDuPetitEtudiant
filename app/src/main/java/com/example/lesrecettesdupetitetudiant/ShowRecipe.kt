@@ -1,5 +1,6 @@
 package com.example.lesrecettesdupetitetudiant
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -76,6 +77,24 @@ class ShowRecipe : AppCompatActivity() {
                     //Log.d("DEBUG ", cursor.getString(cursor.getColumnIndexOrThrow("link_recette")))
                 }
             }
+
+            binding.BTNComplete.setOnClickListener { view ->
+                val builder = AlertDialog.Builder(this)
+                var message = "Utiliser vos ingrédients enlèvera la quantité requise pour la recette du frigidaire"
+
+                builder.setMessage(message)
+
+                builder.setPositiveButton("Confirmer") { _, _ ->
+                    db.completeRecipe(RecipeID)
+                    Toast.makeText(view.context, "Les ingrédients ont été utiliser avec succés !", Toast.LENGTH_LONG).show()
+                }
+                builder.setNegativeButton("Annuler", null)
+
+// Créer et afficher la boîte de dialogue
+                val dialog = builder.create()
+                dialog.show()
+            }
+
         }
     }
 

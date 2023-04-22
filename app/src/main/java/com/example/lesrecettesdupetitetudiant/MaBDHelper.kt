@@ -241,7 +241,6 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val db = this.writableDatabase
         db.execSQL("DELETE FROM $TBL_RECETTE WHERE $ID_TABLE_RECETTE = $RecipeID")
         RemoveIngredientForRecipe(RecipeID)
-        Toast.makeText(context, "Deleted Recipe",Toast.LENGTH_SHORT).show()
     }
 
     fun addToBasket(name:String, unit:String, quantity:Int)
@@ -607,6 +606,29 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
     {
         val db = this.writableDatabase
         db.execSQL("DELETE FROM $TBL_INGREDIENT_REQUIS WHERE $RECETTE_ID_INGREDIENT_REQUIS = $RecipeID")
+    }
+
+    fun completeRecipe(recipeID: Int) {
+        val db = this.writableDatabase
+        var Rcursor:Cursor
+
+        Rcursor = db.rawQuery("SELECT $INGREDIENT_ID_INGREDIENT_REQUIS, $QUANT_INGREDIENT_REQUIS FROM $TBL_INGREDIENT_REQUIS WHERE $RECETTE_ID_INGREDIENT_REQUIS = $recipeID", null)
+        if (Rcursor.moveToFirst())
+        {
+            do {
+                val cursor = db.rawQuery("SELECT * FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = ${Rcursor.getString(Rcursor.getColumnIndexOrThrow(INGREDIENT_ID_INGREDIENT_REQUIS))} ", null)
+                cursor.moveToFirst()
+                var newQuant = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)) - Rcursor.getInt(Rcursor.getColumnIndexOrThrow(QUANT_INGREDIENT_REQUIS))
+                if (newQuant<0)
+                {
+                    newQuant = 0
+                }
+                val cv = ContentValues()
+                cv.put(QUANT_FRIGIDAIRE, newQuant)
+                db.update(TBL_FRIGIDAIRE, cv, "$ID_TABLE_FRIGIDAIRE = ${cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_FRIGIDAIRE))}", null)
+            }while (Rcursor.moveToNext())
+        }
+
     }
 
 }
