@@ -667,4 +667,47 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             }while (Rcursor.moveToNext())
         }
     }
+
+    fun displayBasket(listBasketIngredients: ListView) {
+        val db = this.readableDatabase
+        val query = "SELECT $TBL_INGREDIENT.$NAME_INGREDIENT, $TBL_PANIER.$QUANT_PANIER, $TBL_INGREDIENT.$FAV_INGREDIENT " +
+                "FROM $TBL_PANIER " +
+                "INNER JOIN $TBL_INGREDIENT " +
+                "ON $TBL_PANIER.$INGREDIENT_ID_PANIER = $TBL_INGREDIENT.$ID_TABLE_INGREDIENT"
+
+
+        val cursor = db.rawQuery(query, null)
+        val listItems = ArrayList<String>()
+        val isFavs = ArrayList<Boolean>()
+        val quantIngredients = ArrayList<Int>()
+        var listIsEmpty = false
+
+        if (cursor?.moveToFirst() == true) {
+            do {
+                val ingredientName = cursor.getString(cursor.getColumnIndexOrThrow(NAME_INGREDIENT))
+                val quantite = cursor.getDouble(cursor.getColumnIndexOrThrow(QUANT_PANIER)).toInt()
+                val isFav = cursor.getInt(cursor.getColumnIndexOrThrow(FAV_INGREDIENT))
+                if(quantite != 0)
+                {
+                    listItems.add(ingredientName)
+                    quantIngredients.add(quantite)
+                    if(isFav == 1)
+                        isFavs.add(true)
+                    else
+                        isFavs.add(false)
+                }
+            } while (cursor.moveToNext())
+        } else
+        {
+            listIsEmpty = true
+            listItems.add("Votre Panier est vide")
+        }
+
+        val adapter = if (listIsEmpty)
+            NoResultsAdapter(this.context, listItems)
+        else BasketAdapter(this.context, listItems, quantIngredients, isFavs)
+
+        listBasketIngredients.adapter = adapter
+        cursor.close()
+    }
 }

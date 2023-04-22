@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ListView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import com.example.lesrecettesdupetitetudiant.MaBDHelper
+import com.example.lesrecettesdupetitetudiant.R
 import com.example.lesrecettesdupetitetudiant.databinding.FragmentBasketBinding
+
 
 class BasketFragment : Fragment() {
 
@@ -17,18 +20,32 @@ class BasketFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        val galleryViewModel =
-                ViewModelProvider(this).get(BasketViewModel::class.java)
-
         _binding = FragmentBasketBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
         return root
-        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val listBasketIngredients = view.findViewById<ListView>(R.id.listBasketIngredients)
+        var db:MaBDHelper = MaBDHelper(requireContext())
+
+        db.displayBasket(listBasketIngredients)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        var db:MaBDHelper = MaBDHelper(requireContext())
+        val listBasketIngredients = view?.findViewById<ListView>(R.id.listBasketIngredients)
+        listBasketIngredients?.let { db.displayBasket(it) }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
