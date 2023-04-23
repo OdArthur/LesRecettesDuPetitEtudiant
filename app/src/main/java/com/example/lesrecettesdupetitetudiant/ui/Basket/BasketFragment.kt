@@ -37,6 +37,10 @@ class BasketFragment : Fragment() {
 
         db.displayBasket(listBasketIngredients)
 
+        binding.BTNBasketToFridge.setOnClickListener{ view ->
+            db.AddBasketToFridge(listBasketIngredients)
+        }
+
     }
 
     override fun onResume() {

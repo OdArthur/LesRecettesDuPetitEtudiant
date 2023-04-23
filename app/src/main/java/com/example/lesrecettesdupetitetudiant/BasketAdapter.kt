@@ -67,7 +67,7 @@ class BasketAdapter(
             val builder = AlertDialog.Builder(context)
             var message = "Combien de "
             message += items[position]
-            message += " voulez-vous retirer du frigo?"
+            message += " voulez-vous retirer du panier?"
 
             builder.setMessage(message)
 
@@ -94,7 +94,7 @@ class BasketAdapter(
 
                 val ingredientsMap = HashMap<String, Int>()
                 ingredientsMap[items[position]] = decrementNumber
-                db.removeIngredientsFromFridge(ingredientsMap)
+                db.removeIngredientsFromBasket(ingredientsMap)
                 notifyDataSetChanged()
             }
             builder.setNegativeButton("Annuler", null)

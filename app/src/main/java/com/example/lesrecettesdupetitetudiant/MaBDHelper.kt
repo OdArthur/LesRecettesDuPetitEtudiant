@@ -287,7 +287,7 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
         val db = this.writableDatabase
         for((ingredientName, quantity) in ingredients) {
             val ingredientId = getIngredientIdByName(ingredientName)
-            // Retrieve the current quantity of the ingredient in the fridge
+            // Retrieve the current quantity of the ingredient in the basket
             val selectQuery =
                 "SELECT $QUANT_PANIER FROM $TBL_PANIER WHERE $INGREDIENT_ID_PANIER = $ingredientId"
             val cursor = db.rawQuery(selectQuery, null)
@@ -297,10 +297,10 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
             }
             cursor.close()
 
-            // Calculate the new quantity of the ingredient in the fridge
+            // Calculate the new quantity of the ingredient in the basket
             val newQuantity = currentQuantity - quantity
 
-            // Update the quantity of the ingredient in the fridge
+            // Update the quantity of the ingredient in the basket
             if (newQuantity > 0) {
                 val updateQuery =
                     "UPDATE $TBL_PANIER SET $QUANT_PANIER = $newQuantity WHERE $INGREDIENT_ID_PANIER = $ingredientId"
@@ -722,5 +722,35 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
         listBasketIngredients.adapter = adapter
         cursor.close()
+    }
+
+    fun AddBasketToFridge(listView: ListView) {
+        val db = this.writableDatabase
+        var Bcursor:Cursor
+
+        Bcursor = db.rawQuery("SELECT $INGREDIENT_ID_PANIER, $QUANT_PANIER FROM $TBL_PANIER", null)
+        if (Bcursor.moveToFirst())
+        {
+            do {
+                val cursor = db.rawQuery("SELECT * FROM $TBL_FRIGIDAIRE WHERE $INGREDIENT_ID_FRIGIDAIRE = ${Bcursor.getString(Bcursor.getColumnIndexOrThrow(INGREDIENT_ID_PANIER))} ", null)
+                if(cursor.moveToFirst())
+                {
+                    var newQuant = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_FRIGIDAIRE)) + Bcursor.getInt(Bcursor.getColumnIndexOrThrow(QUANT_PANIER))
+                    val cv = ContentValues()
+                    cv.put(QUANT_FRIGIDAIRE, newQuant)
+                    db.update(TBL_FRIGIDAIRE, cv, "$ID_TABLE_FRIGIDAIRE = ${cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_FRIGIDAIRE))}", null)
+                }
+                else
+                {
+                    val cv = ContentValues()
+                    cv.put(QUANT_FRIGIDAIRE, Bcursor.getInt(Bcursor.getColumnIndexOrThrow(QUANT_PANIER)))
+                    cv.put(INGREDIENT_ID_FRIGIDAIRE, Bcursor.getInt(Bcursor.getColumnIndexOrThrow(INGREDIENT_ID_PANIER)))
+                    db.insert(TBL_FRIGIDAIRE, null, cv)
+                }
+            }while (Bcursor.moveToNext())
+        }
+        db.delete(TBL_PANIER, null, null)
+
+        displayBasket(listView)
     }
 }
