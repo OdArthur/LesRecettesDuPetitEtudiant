@@ -67,14 +67,23 @@ class ShowRecipe : AppCompatActivity() {
                 }
                 else
                 {
-                    var url = cursor.getString(cursor.getColumnIndexOrThrow("link_recette"))
-                    if(!url.startsWith("http://") && !url.startsWith("https://"))
+                    if(ConnexionInternet.isConnectedInternet(this))
                     {
-                        url = "http://" + url
+                        Toast.makeText(this, "Le téléphone est bien connecté à internet", Toast.LENGTH_SHORT).show()
+                        var url = cursor.getString(cursor.getColumnIndexOrThrow("link_recette"))
+                        if(!url.startsWith("http://") && !url.startsWith("https://"))
+                        {
+                            url = "http://" + url
+                        }
+                        val browserIntent : Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(browserIntent)
                     }
-                    val browserIntent : Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    startActivity(browserIntent)
-                    //Log.d("DEBUG ", cursor.getString(cursor.getColumnIndexOrThrow("link_recette")))
+                    else
+                    {
+                        Toast.makeText(this, "Le téléphone n'est pas connecté à internet", Toast.LENGTH_LONG).show()
+                    }
+
+
                 }
             }
 
