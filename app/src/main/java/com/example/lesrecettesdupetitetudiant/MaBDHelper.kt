@@ -753,4 +753,32 @@ class MaBDHelper(MyContext: Context) : SQLiteOpenHelper(MyContext, NOM_BD, null,
 
         displayBasket(listView)
     }
+
+    fun AddIngredientFromRecipe(recipeID: Int) {
+        val db = this.writableDatabase
+        var Rcursor:Cursor
+
+        Rcursor = db.rawQuery("SELECT $INGREDIENT_ID_INGREDIENT_REQUIS, $QUANT_INGREDIENT_REQUIS FROM $TBL_INGREDIENT_REQUIS WHERE $RECETTE_ID_INGREDIENT_REQUIS = $recipeID", null)
+        if (Rcursor.moveToFirst())
+        {
+            do {
+                val cursor = db.rawQuery("SELECT * FROM $TBL_PANIER WHERE $INGREDIENT_ID_PANIER = ${Rcursor.getString(Rcursor.getColumnIndexOrThrow(INGREDIENT_ID_INGREDIENT_REQUIS))} ", null)
+                if(cursor.moveToFirst())
+                {
+                    var newQuant = cursor.getInt(cursor.getColumnIndexOrThrow(QUANT_PANIER)) + Rcursor.getInt(Rcursor.getColumnIndexOrThrow(QUANT_INGREDIENT_REQUIS))
+                    val cv = ContentValues()
+                    cv.put(QUANT_PANIER, newQuant)
+                    db.update(TBL_PANIER, cv, "$ID_TABLE_PANIER = ${cursor.getInt(cursor.getColumnIndexOrThrow(ID_TABLE_PANIER))}", null)
+                }
+                else
+                {
+                    val cv = ContentValues()
+                    cv.put(QUANT_PANIER, Rcursor.getInt(Rcursor.getColumnIndexOrThrow(QUANT_INGREDIENT_REQUIS)))
+                    cv.put(INGREDIENT_ID_PANIER, Rcursor.getInt(Rcursor.getColumnIndexOrThrow(INGREDIENT_ID_INGREDIENT_REQUIS)))
+                    db.insert(TBL_PANIER, null, cv)
+                }
+            }while (Rcursor.moveToNext())
+        }
+    }
+
 }
